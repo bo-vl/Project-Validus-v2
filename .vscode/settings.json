@@ -1,0 +1,14 @@
+{
+    "robloxLsp.diagnostics.globals": [
+        "newcclosure",
+        "getconnections",
+        "mouse1click",
+        "hookmetamethod",
+        "getnamecallmethod",
+        "checkcaller",
+        "Drawing"
+    ],
+    "robloxLsp.diagnostics.disable": [
+        "undefined-global"
+    ]
+}
