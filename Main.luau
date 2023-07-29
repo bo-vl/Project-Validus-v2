@@ -41,7 +41,7 @@ local Settings = {
     FovRadius = 100,
     FovVisable = false,
     FovTransparency = 0.5,
-    
+    FovTracers = false,
 }
 
 local GetScreenPosition = function(Vector)
@@ -258,7 +258,7 @@ local Camlock = function()
         end
     end
 end
-
+    
 local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/'
 
 local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
@@ -406,6 +406,15 @@ Fov:AddToggle('Fov Visible', {
     end
 })
 
+Fov:AddToggle('Tracers', {
+    Text = 'Fov Tracers',
+    Default = false,
+    Tooltip = 'Visible',
+    Callback = function(Value)
+        Settings.FovTracers = Value
+    end
+})
+
 BulletTracers:AddToggle('Enabled', {
     Text = 'Bullet tracers',
     Default = false,
@@ -507,6 +516,7 @@ OldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
 end))  
   
 local Fov = Drawing.new("Circle")
+local Tracers = Drawing.new("Line")
 
 local Fov = function()
     if Settings.FovVisable then
@@ -519,6 +529,27 @@ local Fov = function()
         Fov.Visible = false
     end
 end
+
+local Tracers = function()
+    if Settings.FovTracers then
+        local Closest = GetClosestPlayer()
+        Tracers.Visible = true
+        Tracers.Color = Color3.fromRGB(255, 255, 255)
+        Tracers.Thickness = 1
+        Tracers.From = Vector2.new(mouse.X, mouse.Y + 36)
+        if Closest then
+            Tracers.To = Vector2.new(Camera:WorldToViewportPoint(Closest.Position).X, Camera:WorldToViewportPoint(Closest.Position).Y)
+        else
+            Tracers.Visible = false
+        end
+    else
+        Tracers.Visible = false
+    end
+end
+
+RunService.RenderStepped:Connect(function()
+    Tracers()
+end)
 
 RunService.Heartbeat:Connect(function()
     Fov()
