@@ -25,16 +25,12 @@ local Humanoid = Character.Humanoid
 local RootPart = Character.HumanoidRootPart
 local Settings = {
     Camlock = false,
-    BulletTracers = false,
-    Spinbot = false,
     TriggerBot = false,
     Enabled = false,
     Method = "Raycast",
     TeamCheck = false,
     TargetPart = "Head",
-    BulletTracersColor = Color3.fromRGB(255, 255, 255),
     HitChance = 100, 
-    SpinbotSpeed = 10,
     Smoothing = 50,
 
     --Fov
@@ -42,6 +38,8 @@ local Settings = {
     FovVisable = false,
     FovTransparency = 0.5,
     FovTracers = false,
+    FovColor = Color3.new(255, 255, 255),
+    FovTracersColor = Color3.new(255, 255, 255),
 }
 
 local GetScreenPosition = function(Vector)
@@ -75,23 +73,6 @@ local Getgun = function(player)
         end
     end
     return nil
-end
-
-local CreateBeam = function(p1, p2)
-    local beam = Instance.new("Part")
-    beam.Anchored = true
-    beam.CanCollide = false
-    beam.Material = Enum.Material.ForceField
-    beam.BrickColor = BrickColor.new(Settings.BulletTracersColor)   
-    
-    local thickness = 0.2
-    local direction = p2 - p1
-    local magnitude = direction.magnitude
-    
-    beam.Size = Vector3.new(thickness, thickness, magnitude)
-    beam.CFrame = CFrame.new(p1, p2) * CFrame.new(0, 0, -magnitude / 2)
-    beam.Parent = workspace
-    return beam
 end
 
 local IsPlayerVisible = function(Player)
@@ -200,51 +181,6 @@ local TriggerBot = function()
     end
 end
 
-local Spinbot = function()
-    local humanoid = game.Players.LocalPlayer.Character.Humanoid
-    local character = humanoid.Parent
-    local speed = Settings.SpinbotSpeed
-
-    if Settings.Spinbot then
-        local angularVelocity = Instance.new("BodyAngularVelocity")
-        angularVelocity.AngularVelocity = Vector3.new(0, speed, 0)
-        angularVelocity.MaxTorque = Vector3.new(0, math.huge, 0)
-
-        local torso = character:WaitForChild("HumanoidRootPart")
-        angularVelocity.Parent = torso
-
-        local cleanup
-        cleanup = humanoid.Died:Connect(function()
-            angularVelocity:Destroy()
-            cleanup:Disconnect()
-        end)
-    else
-        local torso = character:FindFirstChild("HumanoidRootPart")
-        local angularVelocity = torso and torso:FindFirstChildOfClass("BodyAngularVelocity")
-        if angularVelocity then
-            angularVelocity:Destroy()
-        end
-    end
-end
-
-mouse.Button1Down:Connect(function()
-    if Settings.BulletTracers then
-        local gun = Getgun(plr)
-        if gun then
-            local handle = gun:FindFirstChild("Handle")
-            if handle then
-                local beamOrigin = handle.Position
-                local BeamDirection = Direction(beamOrigin, GetClosestPlayer().Position)
-                local BeamEnd = beamOrigin + BeamDirection
-                local beam = CreateBeam(beamOrigin, BeamEnd)
-                wait(0.5)
-                beam:Destroy()
-                task.wait(1)
-            end
-        end
-    end
-end)
-
 local Camlock = function()
     local Target = GetClosestPlayer()
     if Settings.Camlock then
@@ -281,13 +217,12 @@ local Tabs = {
 }
 
 local Silent = Tabs.Combat:AddLeftGroupbox('Silent')
-local Fov = Tabs.Visuals:AddLeftGroupbox('Fov')
-local Spinbots = Tabs.Combat:AddRightGroupbox('Spinbots')
-local BulletTracers = Tabs.Visuals:AddRightGroupbox('Bullet Tracers')
-
+local Fov = Tabs.Visuals:AddLeftTabbox('Fov')
+local FovSettings = Fov:AddTab('Fov')
+local Colors = Fov:AddTab('Colors')
 
 Silent:AddLabel('Camlock'):AddKeyPicker('Camlock', {
-    Default = 'C',
+    Default = '',
     SyncToggleState = false,
     Mode = 'Toggle',
 
@@ -299,7 +234,7 @@ Silent:AddLabel('Camlock'):AddKeyPicker('Camlock', {
 })
 
 Silent:AddLabel('Silent aim'):AddKeyPicker('Silentaim', {
-    Default = 'G',
+    Default = '',
     SyncToggleState = false,
     Mode = 'Toggle',
 
@@ -311,7 +246,7 @@ Silent:AddLabel('Silent aim'):AddKeyPicker('Silentaim', {
 })
 
 Silent:AddLabel('Trigger bot'):AddKeyPicker('Triggerbot', {
-    Default = 'J',
+    Default = '',
     SyncToggleState = false,
     Mode = 'Toggle',
 
@@ -338,15 +273,6 @@ Silent:AddToggle('VisibleCheck', {
     Tooltip = 'Checkington',
     Callback = function(Value)
         Settings.VisibleCheck = Value
-    end
-})
-
-Spinbots:AddToggle('Spinny', {
-    Text = 'Spinbot',
-    Default = false,
-    Tooltip = 'Spinbot',
-    Callback = function(Value)
-        Settings.Spinbot = Value
     end
 })
 
@@ -397,7 +323,7 @@ Silent:AddSlider('Smoothing', {
     end
 })
 
-Fov:AddToggle('Fov Visible', {
+FovSettings:AddToggle('Fov Visible', {
     Text = 'Enable',
     Default = false,
     Tooltip = 'Visible',
@@ -406,7 +332,17 @@ Fov:AddToggle('Fov Visible', {
     end
 })
 
-Fov:AddToggle('Tracers', {
+Colors:AddLabel('Fov Color'):AddColorPicker('ColorPicker', {
+    Default = Color3.new(1, 1, 1),
+    Title = 'Fov Color',
+    Transparency = 0,
+
+    Callback = function(Value)
+        Settings.FovColor = Value
+    end
+})
+
+FovSettings:AddToggle('Tracers', {
     Text = 'Fov Tracers',
     Default = false,
     Tooltip = 'Visible',
@@ -415,17 +351,17 @@ Fov:AddToggle('Tracers', {
     end
 })
 
-BulletTracers:AddToggle('Enabled', {
-    Text = 'Bullet tracers',
-    Default = false,
-    Tooltip = 'Tracington',
+Colors:AddLabel('Fov Tracers Color'):AddColorPicker('ColorPicker', {
+    Default = Color3.new(1, 1, 1), 
+    Title = 'Fov Tracers Color', 
+    Transparency = 0, 
+
     Callback = function(Value)
-        Settings.BulletTracers = Value
+        Settings.FovTracersColor = Value
     end
 })
 
-
-Fov:AddSlider('Radois', {
+FovSettings:AddSlider('Radois', {
     Text = 'Fov Radius',
     Default = 100,
     Min = 1,
@@ -437,7 +373,7 @@ Fov:AddSlider('Radois', {
     end
 })
 
-Fov:AddSlider('Trans', {
+FovSettings:AddSlider('Trans', {
     Text = 'Fov Transparency',
     Default = 0.4,
     Min = 0.1,
@@ -446,18 +382,6 @@ Fov:AddSlider('Trans', {
     Compact = false,
     Callback = function(Value)
         Settings.FovTransparency = Value
-    end
-})
-
-Spinbots:AddSlider('Spin', {
-    Text = 'Spinbot Speed',
-    Default = 100,
-    Min = 0,
-    Max = 100,
-    Rounding = 1,
-    Compact = false,
-    Callback = function(Value)
-        Settings.SpinbotSpeed = Value
     end
 })
 
@@ -521,7 +445,7 @@ local Tracers = Drawing.new("Line")
 local Fov = function()
     if Settings.FovVisable then
         Fov.Visible = true
-        Fov.Color = Color3.fromRGB(255, 255, 255)
+        Fov.Color = Settings.FovColor
         Fov.Radius = Settings.FovRadius
         Fov.Transparency = Settings.FovTransparency
         Fov.Position = Vector2.new(mouse.X, mouse.Y + 36)
@@ -534,7 +458,7 @@ local Tracers = function()
     if Settings.FovTracers then
         local Closest = GetClosestPlayer()
         Tracers.Visible = true
-        Tracers.Color = Color3.fromRGB(255, 255, 255)
+        Tracers.Color = Settings.FovTracersColor
         Tracers.Thickness = 1
         Tracers.From = Vector2.new(mouse.X, mouse.Y + 36)
         if Closest then
@@ -554,15 +478,14 @@ end)
 RunService.Heartbeat:Connect(function()
     Fov()
     TriggerBot()
-    Spinbot()
     Camlock()
 end)
-
-Library:SetWatermark('Privte Project Btw')
 
 Library:OnUnload(function()
     Library.Unloaded = true
 end)
+
+Library:SetWatermark(('Project Validus V2 | Made by Hydra.xd | %s ms'):format(pingValue))
 
 local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
 local MyButton = MenuGroup:AddButton({
