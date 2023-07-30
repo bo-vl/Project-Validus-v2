@@ -24,6 +24,7 @@ local WorldToScreen = Camera.WorldToScreenPoint
 local GetPlayers = plrs.GetPlayers
 local GetPartsObscuringTarget = Camera.GetPartsObscuringTarget
 local Pathfinding = game:GetService("PathfindingService")
+local keys = {}
 local Settings = {
     Camlock = false,
     TriggerBot = false,
@@ -36,6 +37,14 @@ local Settings = {
     Material = "ForceField",
     GunVisuals = false,
     Bot = false,
+
+    --Movement
+    Fly = false,
+    Speed = false,
+    SpeedValue = 0,
+    FlyValue = 0,
+    SpeedMethod = "CFrame",
+    FlyMethod = "CFrame",
     
     --Antiaim
     AntiAim = false,
@@ -233,7 +242,10 @@ local Fov = Tabs.Visuals:AddLeftTabbox('Fov')
 local FovSettings = Fov:AddTab('Fov')
 local Colors = Fov:AddTab('Colors')
 local GunVisuals = Tabs.Visuals:AddRightGroupbox('Gun Visuals')
-local Bot = Tabs.Misc:AddLeftGroupbox('Bot')
+local Bot = Tabs.Misc:AddRightGroupbox('Bot')
+local Movement = Tabs.Misc:AddLeftTabbox('Movement')
+local Fly = Movement:AddTab('Fly')
+local Speed = Movement:AddTab('Speed')
 
 Silent:AddLabel('Camlock'):AddKeyPicker('Camlock', {
     Default = '',
@@ -488,6 +500,106 @@ AntiAim:AddSlider('Antiaim', {
     end
 })
 
+Speed:AddToggle('Speed', {
+    Text = 'Speed',
+    Default = false,
+    Tooltip = 'Speedington',
+    Callback = function(Value)
+        Settings.Speed = Value
+    end
+})
+
+Speed:AddDropdown('Method', {
+    Values = { 'CFrame', 'Velocity', 'WalkSpeed', 'MoveDirection'},
+    Default = 1, 
+    Multi = false,
+
+    Text = 'Speed Method',
+    Tooltip = 'Speed Method',
+
+    Callback = function(Value)
+        Settings.SpeedMethod = Value
+    end
+})
+
+Speed:AddSlider('SPeed', {
+    Text = 'Speed Value',
+    Default = 0,
+    Min = 0,
+    Max = 100,
+    Rounding = 1,
+    Compact = false,
+    Callback = function(Value)
+        Settings.SpeedValue = Value
+    end
+})
+
+Fly:AddToggle('Speed', {
+    Text = 'Fly',
+    Default = false,
+    Tooltip = 'Flyington',
+    Callback = function(Value)
+        Settings.Fly = Value
+    end
+})
+
+Fly:AddDropdown('Method', {
+    Values = { 'CFrame', 'Velocity'},
+    Default = 1, 
+    Multi = false,
+
+    Text = 'Fly Method',
+    Tooltip = 'Fly Method',
+
+    Callback = function(Value)
+        Settings.FlyMethod = Value
+    end
+})
+
+Fly:AddSlider('SPeed', {
+    Text = 'fly Value',
+    Default = 0,
+    Min = 0,
+    Max = 100,
+    Rounding = 1,
+    Compact = false,
+    Callback = function(Value)
+        Settings.FlyValue = Value
+    end
+})
+
+local Fly = function()
+    if Settings.Fly then
+        if Settings.FlyMethod == "Velocity" then
+            local forward = (keys[Enum.KeyCode.W] and 1 or 0) - (keys[Enum.KeyCode.S] and 1 or 0)
+            local right = (keys[Enum.KeyCode.D] and 1 or 0) - (keys[Enum.KeyCode.A] and 1 or 0)
+            local up = (keys[Enum.KeyCode.Space] and 1 or 0) - (keys[Enum.KeyCode.LeftControl] and 1 or 0)
+            local direction = (Camera.CFrame * CFrame.new(right * 5, up * 5, forward * 5)).lookVector
+            plr.Character.HumanoidRootPart.Velocity = direction * Settings.FlyValue
+        elseif Settings.FlyMethod == "CFrame" then
+            local forward = (keys[Enum.KeyCode.W] and 1 or 0) - (keys[Enum.KeyCode.S] and 1 or 0)
+            local right = (keys[Enum.KeyCode.D] and 1 or 0) - (keys[Enum.KeyCode.A] and 1 or 0)
+            local up = (keys[Enum.KeyCode.Space] and 1 or 0) - (keys[Enum.KeyCode.LeftControl] and 1 or 0)
+            local direction = (Camera.CFrame * CFrame.new(right * 5, up * 5, forward * 5)).lookVector
+            plr.Character.HumanoidRootPart.CFrame = CFrame.new(plr.Character.HumanoidRootPart.Position + direction * Settings.FlyValue)
+        end
+    end
+end
+
+local Speed = function()
+    if Settings.Speed then
+        if Settings.SpeedMethod == "WalkSpeed" then
+            plr.Character.Humanoid.WalkSpeed = Settings.SpeedValue
+        elseif Settings.SpeedMethod == "MoveDirection" then
+            plr.Character:TranslateBy(plr.Character.Humanoid.MoveDirection * Settings.SpeedValue/100)
+        elseif Settings.SpeedMethod == "Velocity" then
+            plr.Character.HumanoidRootPart.Velocity = plr.Character.HumanoidRootPart.Velocity + plr.Character.Humanoid.MoveDirection * Settings.SpeedValue
+        elseif Settings.SpeedMethod == "CFrame" then
+            plr.Character.HumanoidRootPart.CFrame = plr.Character.HumanoidRootPart.CFrame + plr.Character.Humanoid.MoveDirection * Settings.SpeedValue/100
+        end
+    end
+end
+
 local ClosestPathfinding = function()
     local Closest = nil
     local Distance = math.huge
@@ -661,13 +773,15 @@ RunService.Heartbeat:Connect(function()
     Tracers()
     TriggerBot()
     Camlock()
+    Speed()
+    Fly()
 end)
 
 Library:OnUnload(function()
     Library.Unloaded = true
 end)
 
-Library:SetWatermark(('Project Validus V2 | Made by Hydra.xd | Version: 2.0.5'))
+Library:SetWatermark(('Project Validus V2 | User: ' .. plr.Name .. ' | Version: 2.0.5'))
 
 local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
 local MyButton = MenuGroup:AddButton({
