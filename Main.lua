@@ -446,9 +446,10 @@ local Walking = function()
                 local targetPosition = closestPlayer.Position
                 
                 local path = Pathfinding:CreatePath({
-                    AgentRadius = 1,
+                    AgentRadius = 2,
                     AgentHeight = 5,
                     AgentCanJump = true,
+                    AgentCanClimb = true,
                     AgentJumpHeight = 8, 
                     AgentMaxSlope = 45,
                 })
@@ -464,11 +465,7 @@ local Walking = function()
         
                         Camera.CFrame = CFrame.new(Camera.CFrame.Position, closestPlayer.Position)
                     end
-                else
-                    warn("Pathfinding failed! Unable to find a valid path.")
                 end
-            else
-                warn("HumanoidRootPart not found in the player's character.")
             end
         end
            
