@@ -11,29 +11,19 @@ if not isfolder(Folder) then
     makefolder(Folder)
 end
 
-if not isfile(Folder.."/Version.txt", Folder) then
-    writefile(Folder.."/Version.txt", "2.0.5")
-end
-
-local Caller = tostring(getcallingscript())
-local Method = getnamecallmethod()
 local plr = game:GetService("Players").LocalPlayer
 local plrs = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local GetMouseLocation = UserInputService.GetMouseLocation
 local ValidTargetParts = {"Head", "HumanoidRootPart"}
-local VirtualUser = game:GetService("VirtualUser")
 local mouse = plr:GetMouse()
-local originalCameraMode = game.Players.LocalPlayer.CameraMode
 local Camera = workspace.CurrentCamera
 local FindFirstChild = game.FindFirstChild
 local WorldToScreen = Camera.WorldToScreenPoint
 local GetPlayers = plrs.GetPlayers
-local Character = plr.Character
 local GetPartsObscuringTarget = Camera.GetPartsObscuringTarget
-local Humanoid = Character.Humanoid
-local RootPart = Character.HumanoidRootPart
+local Pathfinding = game:GetService("PathfindingService")
 local Settings = {
     Camlock = false,
     TriggerBot = false,
@@ -43,6 +33,9 @@ local Settings = {
     TargetPart = "Head",
     HitChance = 100, 
     Smoothing = 50,
+    Material = "ForceField",
+    GunVisuals = false,
+    Bot = false,
 
     --Fov
     FovRadius = 100,
@@ -231,6 +224,8 @@ local Silent = Tabs.Combat:AddLeftGroupbox('Silent')
 local Fov = Tabs.Visuals:AddLeftTabbox('Fov')
 local FovSettings = Fov:AddTab('Fov')
 local Colors = Fov:AddTab('Colors')
+local GunVisuals = Tabs.Visuals:AddRightGroupbox('Gun Visuals')
+local Bot = Tabs.Misc:AddLeftGroupbox('Bot')
 
 Silent:AddLabel('Camlock'):AddKeyPicker('Camlock', {
     Default = '',
@@ -396,6 +391,91 @@ FovSettings:AddSlider('Trans', {
     end
 })
 
+GunVisuals:AddToggle('Gun Visuals', {
+    Text = 'Enable',
+    Default = false,
+    Tooltip = 'Gun Visuals',
+    Callback = function(Value)
+        Settings.GunVisuals = Value
+    end
+})
+
+GunVisuals:AddDropdown('Material', {
+    Values = { 'ForceField'},
+    Default = 1, 
+    Multi = false,
+
+    Text = 'Gun Material',
+    Tooltip = 'Material',
+
+    Callback = function(Value)
+        Settings.Material = Value
+    end
+})
+
+Bot:AddToggle('Bot', {
+    Text = 'Auto Bot',
+    Default = false,
+    Tooltip = 'Auto Finds players',
+    Callback = function(Value)
+        Settings.Bot = Value
+    end
+})
+
+local ClosestPathfinding = function()
+    local Closest = nil
+    local Distance = math.huge
+    for _,v in ipairs(plrs:GetPlayers()) do
+        if v ~= plr and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
+            local magnitude = (v.Character.HumanoidRootPart.Position - plr.Character.HumanoidRootPart.Position).Magnitude
+            if magnitude < Distance then
+                Closest = v.Character.HumanoidRootPart
+                Distance = magnitude
+            end
+        end
+    end
+    return Closest
+end
+
+
+local Walking = function()
+    local closestPlayer = ClosestPathfinding()
+    if Settings.Bot then
+        if closestPlayer then
+            local humanoidRootPart = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                local targetPosition = closestPlayer.Position
+                
+                local path = Pathfinding:CreatePath({
+                    AgentRadius = 1,
+                    AgentHeight = 5,
+                    AgentCanJump = true,
+                    AgentJumpHeight = 8, 
+                    AgentMaxSlope = 45,
+                })
+                
+                path:ComputeAsync(humanoidRootPart.Position, targetPosition)
+                
+                if path.Status == Enum.PathStatus.Success then
+                    local waypoints = path:GetWaypoints()
+                    
+                    for _, waypoint in ipairs(waypoints) do
+                        plr.Character.Humanoid:MoveTo(waypoint.Position)
+                        plr.Character.Humanoid.MoveToFinished:Wait()
+        
+                        Camera.CFrame = CFrame.new(Camera.CFrame.Position, closestPlayer.Position)
+                    end
+                else
+                    warn("Pathfinding failed! Unable to find a valid path.")
+                end
+            else
+                warn("HumanoidRootPart not found in the player's character.")
+            end
+        end
+           
+    end
+end
+
 local OldNamecall
 OldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
     local Method = getnamecallmethod()
@@ -482,6 +562,24 @@ local Tracers = function()
     end
 end
 
+local GunVisuals = function()
+    if Settings.GunVisuals then
+        local gun = Getgun(plr)
+        if gun then
+            for _,v in pairs(gun:GetDescendants()) do
+                if v:IsA("MeshPart") then
+                    v.Material = Settings.Material
+                end
+            end
+        end
+    end
+end
+
+RunService.RenderStepped:Connect(function()
+    GunVisuals()
+    Walking()
+end)
+
 RunService.Heartbeat:Connect(function()
     Fov()
     Tracers()
@@ -493,7 +591,7 @@ Library:OnUnload(function()
     Library.Unloaded = true
 end)
 
-Library:SetWatermark(('Project Validus V2 | Made by Hydra.xd | Version: '.. readfile(Folder.."/Version.txt")))
+Library:SetWatermark(('Project Validus V2 | Made by Hydra.xd | Version: 2.0.5'))
 
 local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
 local MyButton = MenuGroup:AddButton({
