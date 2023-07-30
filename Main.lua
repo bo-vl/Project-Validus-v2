@@ -437,7 +437,6 @@ local ClosestPathfinding = function()
     return Closest
 end
 
-
 local Walking = function()
     local closestPlayer = ClosestPathfinding()
     if Settings.Bot then
