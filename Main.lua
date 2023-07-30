@@ -6,6 +6,17 @@ for _, v in pairs(getconnections(game:GetService("LogService").MessageOut)) do
     v:Disable()
 end
 
+local Folder = "Project Validus"
+if not isfolder(Folder) then
+    makefolder(Folder)
+end
+
+if not isfile(Folder.."/Version.txt", Folder) then
+    writefile(Folder.."/Version.txt", "2.0.5")
+end
+
+local Caller = tostring(getcallingscript())
+local Method = getnamecallmethod()
 local plr = game:GetService("Players").LocalPlayer
 local plrs = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -471,12 +482,9 @@ local Tracers = function()
     end
 end
 
-RunService.RenderStepped:Connect(function()
-    Tracers()
-end)
-
 RunService.Heartbeat:Connect(function()
     Fov()
+    Tracers()
     TriggerBot()
     Camlock()
 end)
@@ -485,7 +493,7 @@ Library:OnUnload(function()
     Library.Unloaded = true
 end)
 
-Library:SetWatermark(('Project Validus V2 | Made by Hydra.xd | %s ms'):format(pingValue))
+Library:SetWatermark(('Project Validus V2 | Made by Hydra.xd | Version: '.. readfile(Folder.."/Version.txt")))
 
 local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
 local MyButton = MenuGroup:AddButton({
@@ -523,7 +531,7 @@ ThemeManager:SetLibrary(Library)
 SaveManager:SetLibrary(Library)
 SaveManager:IgnoreThemeSettings() 
 SaveManager:SetIgnoreIndexes({ 'MenuKeybind' }) 
-ThemeManager:SetFolder('MyScriptHub')
-SaveManager:SetFolder('MyScriptHub/specific-game')
+ThemeManager:SetFolder(Folder)
+SaveManager:SetFolder(Folder..'/Games')
 SaveManager:BuildConfigSection(Tabs['UI Settings']) 
 ThemeManager:ApplyToTab(Tabs['UI Settings'])
