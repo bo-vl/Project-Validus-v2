@@ -24,6 +24,8 @@ local WorldToScreen = Camera.WorldToScreenPoint
 local GetPlayers = plrs.GetPlayers
 local GetPartsObscuringTarget = Camera.GetPartsObscuringTarget
 local Pathfinding = game:GetService("PathfindingService")
+local Util = loadstring(game:HttpGet("https://raw.githubusercontent.com/Robobo2022/Util/main/Load.lua"))()
+
 local keys = {}
 local Settings = {
     Camlock = false,
@@ -37,6 +39,7 @@ local Settings = {
     Material = "ForceField",
     GunVisuals = false,
     Bot = false,
+    Botmethod = "Tween",
 
     --Movement
     Fly = false,
@@ -53,13 +56,14 @@ local Settings = {
     DesyncY = 0,
     DesyncZ = 0,
 
-    --Fov
+    --Visuals
     FovRadius = 100,
     FovVisable = false,
     FovTransparency = 0.5,
     FovTracers = false,
     FovColor = Color3.new(255, 255, 255),
     FovTracersColor = Color3.new(255, 255, 255),
+    HealthBar = false,
 }
 
 local GetScreenPosition = function(Vector)
@@ -200,6 +204,7 @@ local AntiAim = Tabs.Combat:AddRightGroupbox('Anti Aim')
 local Fov = Tabs.Visuals:AddLeftTabbox('Fov')
 local FovSettings = Fov:AddTab('Fov')
 local Colors = Fov:AddTab('Colors')
+local Esp = Tabs.Visuals:AddRightGroupbox('Esp')
 local GunVisuals = Tabs.Visuals:AddRightGroupbox('Gun Visuals')
 local Bot = Tabs.Misc:AddRightGroupbox('Bot')
 local Movement = Tabs.Misc:AddLeftTabbox('Movement')
@@ -401,6 +406,19 @@ Bot:AddToggle('Bot', {
     end
 })
 
+Bot:AddDropdown('bot', {
+    Values = { 'Tween', 'Walking', 'Teleport'},
+    Default = 1, 
+    Multi = false,
+
+    Text = 'Bot Method',
+    Tooltip = 'Material',
+
+    Callback = function(Value)
+        Settings.Botmethod = Value
+    end
+})
+
 AntiAim:AddToggle('Antiaim', {
     Text = 'Anti Aim',
     Default = false,
@@ -527,20 +545,21 @@ Fly:AddSlider('SPeed', {
     end
 })
 
+Esp:AddToggle('Healthbar', {
+    Text = 'Health Bar',
+    Default = false,
+    Tooltip = 'Healthbar',
+    Callback = function(Value)
+        Settings.HealthBar = Value
+    end
+})
+
 local Fly = function()
     if Settings.Fly then
         if Settings.FlyMethod == "Velocity" then
-            local forward = (keys[Enum.KeyCode.W] and 1 or 0) - (keys[Enum.KeyCode.S] and 1 or 0)
-            local right = (keys[Enum.KeyCode.D] and 1 or 0) - (keys[Enum.KeyCode.A] and 1 or 0)
-            local up = (keys[Enum.KeyCode.Space] and 1 or 0) - (keys[Enum.KeyCode.LeftControl] and 1 or 0)
-            local direction = (Camera.CFrame * CFrame.new(right * 5, up * 5, forward * 5)).lookVector
-            plr.Character.HumanoidRootPart.Velocity = direction * Settings.FlyValue
+
         elseif Settings.FlyMethod == "CFrame" then
-            local forward = (keys[Enum.KeyCode.W] and 1 or 0) - (keys[Enum.KeyCode.S] and 1 or 0)
-            local right = (keys[Enum.KeyCode.D] and 1 or 0) - (keys[Enum.KeyCode.A] and 1 or 0)
-            local up = (keys[Enum.KeyCode.Space] and 1 or 0) - (keys[Enum.KeyCode.LeftControl] and 1 or 0)
-            local direction = (Camera.CFrame * CFrame.new(right * 5, up * 5, forward * 5)).lookVector
-            plr.Character.HumanoidRootPart.CFrame = CFrame.new(plr.Character.HumanoidRootPart.Position + direction * Settings.FlyValue)
+
         end
     end
 end
@@ -581,30 +600,65 @@ local Walking = function()
             local humanoidRootPart = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
             if humanoidRootPart then
                 local targetPosition = closestPlayer.Position
-                
-                local path = Pathfinding:CreatePath({
-                    AgentRadius = 2,
-                    AgentHeight = 5,
-                    AgentCanJump = true,
-                    AgentCanClimb = true,
-                    AgentJumpHeight = 8, 
-                    AgentMaxSlope = 45,
-                })
-                
-                path:ComputeAsync(humanoidRootPart.Position, targetPosition)
-                
-                if path.Status == Enum.PathStatus.Success then
-                    local waypoints = path:GetWaypoints()
-                    
-                    for _, waypoint in ipairs(waypoints) do
-                        plr.Character.Humanoid:MoveTo(waypoint.Position)
-                        plr.Character.Humanoid.MoveToFinished:Wait()        
-                        Camera.CFrame = CFrame.new(Camera.CFrame.Position, closestPlayer.Position)
+
+                if Settings.Botmethod == "Walking" then
+                    local path = Pathfinding:CreatePath({
+                        AgentRadius = 2,
+                        AgentHeight = 5,
+                        AgentCanJump = true,
+                        AgentCanClimb = true,
+                        AgentJumpHeight = 8,
+                        AgentMaxSlope = 45,
+                    })
+
+                    path:ComputeAsync(humanoidRootPart.Position, targetPosition)
+
+                    if path.Status == Enum.PathStatus.Success then
+                        local waypoints = path:GetWaypoints()
+
+                        for _, waypoint in ipairs(waypoints) do
+                            local distance = (humanoidRootPart.Position - targetPosition).Magnitude
+                            if distance > 4 then
+                                plr.Character.Humanoid:MoveTo(waypoint.Position)
+                                plr.Character.Humanoid.MoveToFinished:Wait()
+                            else
+                                break
+                            end
+                        end
+                    end
+                elseif Settings.Botmethod == "Tween" then
+                    local distance = (targetPosition - humanoidRootPart.Position).Magnitude
+                    local duration = distance * 0.1
+
+                    Util.CTween:go(plr, CFrame.new(targetPosition), duration)
+                elseif Settings.Botmethod == "Teleport" then
+                    local path = Pathfinding:CreatePath({
+                        AgentRadius = 2,
+                        AgentHeight = 5,
+                        AgentCanJump = true,
+                        AgentCanClimb = true,
+                        AgentJumpHeight = 8,
+                        AgentMaxSlope = 45,
+                    })
+
+                    path:ComputeAsync(humanoidRootPart.Position, targetPosition)
+
+                    if path.Status == Enum.PathStatus.Success then
+                        local waypoints = path:GetWaypoints()
+
+                        for _, waypoint in ipairs(waypoints) do
+                            local distance = (humanoidRootPart.Position - targetPosition).Magnitude
+                            if distance > 4 then
+                                plr.Character.HumanoidRootPart.CFrame = CFrame.new(waypoint.Position)
+                                wait(0.1)
+                            else
+                                break
+                            end
+                        end
                     end
                 end
             end
         end
-           
     end
 end
 
@@ -654,6 +708,81 @@ OldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
     return OldNamecall(...)
 end))  
   
+
+local healthBars = {}
+
+local function createSquare(color, size, outlineColor)
+    local square = Drawing.new("Square")
+    square.Visible = false
+    square.Center = true
+    square.Outline = true
+    square.OutlineColor = outlineColor or Color3.fromRGB(0, 0, 0)
+    square.Font = 1
+    square.Size = size or Vector2.new(4, 40)
+    square.Color = color or Color3.fromRGB(0, 255, 0)
+    return square
+end
+
+local function updateHealthBars()
+    local cameraCFrame = Camera.CFrame
+    for _, v in pairs(plrs:GetChildren()) do
+        if v.Name ~= plr.Name then
+            local healthBar = healthBars[v]
+            if not healthBar then
+                healthBar = createSquare(Color3.fromRGB(0, 255, 0), Vector2.new(4, 40), Color3.fromRGB(0, 0, 0))
+                healthBars[v] = healthBar
+            end
+
+            if Settings.HealthBar and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
+                local humanoidRootPart = v.Character:FindFirstChild("HumanoidRootPart")
+                if humanoidRootPart then
+                    local pos, vis = Camera.WorldToViewportPoint(Camera, humanoidRootPart.Position + Vector3.new(2.5, 0, 0))
+                    if vis then
+                        local healthPercent = v.Character.Humanoid.Health / v.Character.Humanoid.MaxHealth
+
+                        local distance = (cameraCFrame.Position - humanoidRootPart.Position).Magnitude
+                        local scale = math.clamp(1 / (distance * 0.02), 0.5, 2.5)
+
+                        local healthBarSize = Vector2.new(4 * scale, 40 * scale * healthPercent)
+
+                        healthBar.Visible = true
+                        healthBar.Position = Vector2.new(pos.X, pos.Y) - Vector2.new(0, healthBarSize.Y / 2)
+
+                        if healthPercent > 0.5 then
+                            healthBar.Color = Color3.fromRGB((1 - healthPercent) * 510, 255, 0)
+                        else
+                            healthBar.Color = Color3.fromRGB(255, healthPercent * 510, 0)
+                        end
+
+                        healthBar.Size = healthBarSize
+                    else
+                        healthBar.Visible = false
+                    end
+                else
+                    healthBar.Visible = false
+                end
+            else
+                healthBar.Visible = false
+            end
+        end
+    end
+end
+
+plrs.PlayerAdded:Connect(function(player)
+    healthBars[player] = createSquare(Color3.fromRGB(0, 255, 0), Vector2.new(4, 40), Color3.fromRGB(0, 0, 0))
+end)
+
+plrs.PlayerRemoving:Connect(function(player)
+    local healthBar = healthBars[player]
+    if healthBar then
+        healthBar.Visible = false
+        healthBars[player] = nil
+        healthBar:Remove()
+    end
+end)
+
+RunService.RenderStepped:Connect(updateHealthBars)
+
 local Fov = Drawing.new("Circle")
 local Tracers = Drawing.new("Line")
 
