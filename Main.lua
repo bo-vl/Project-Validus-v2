@@ -37,7 +37,6 @@ local Settings = {
     GunVisuals = false,
     Bot = false,
     
-
     --Antiaim
     AntiAim = false,
     AntiAimType = "CFrame",
@@ -528,8 +527,7 @@ local Walking = function()
                     
                     for _, waypoint in ipairs(waypoints) do
                         plr.Character.Humanoid:MoveTo(waypoint.Position)
-                        plr.Character.Humanoid.MoveToFinished:Wait()
-        
+                        plr.Character.Humanoid.MoveToFinished:Wait()        
                         Camera.CFrame = CFrame.new(Camera.CFrame.Position, closestPlayer.Position)
                     end
                 end
