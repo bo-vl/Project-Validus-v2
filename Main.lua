@@ -649,8 +649,8 @@ local Walking = function()
                         for _, waypoint in ipairs(waypoints) do
                             local distance = (humanoidRootPart.Position - targetPosition).Magnitude
                             if distance > 4 then
-                                plr.Character.HumanoidRootPart.CFrame = CFrame.new(waypoint.Position)
-                                wait(0.1)
+                                plr.Character.HumanoidRootPart.CFrame = CFrame.new(waypoint.Position) + Vector3.new(0, 3, 0)
+                                wait(distance/100)
                             else
                                 break
                             end
