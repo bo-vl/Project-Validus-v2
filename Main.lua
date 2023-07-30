@@ -650,7 +650,7 @@ local Walking = function()
                             local distance = (humanoidRootPart.Position - targetPosition).Magnitude
                             if distance > 4 then
                                 plr.Character.HumanoidRootPart.CFrame = CFrame.new(waypoint.Position) + Vector3.new(0, 3, 0)
-                                wait(distance/100)
+                                wait(0.1)
                             else
                                 break
                             end
