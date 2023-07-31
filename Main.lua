@@ -557,9 +557,17 @@ Esp:AddToggle('Healthbar', {
 local Fly = function()
     if Settings.Fly then
         if Settings.FlyMethod == "Velocity" then
-
+            local forward = (UserInputService:IsKeyDown(Enum.KeyCode.W) and 1 or 0) - (UserInputService:IsKeyDown(Enum.KeyCode.S) and 1 or 0)
+            local right = (UserInputService:IsKeyDown(Enum.KeyCode.D) and 1 or 0) - (UserInputService:IsKeyDown(Enum.KeyCode.A) and 1 or 0)
+            local up = (UserInputService:IsKeyDown(Enum.KeyCode.Space) and 1 or 0) - (UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) and 1 or 0)
+            local direction = (Camera.CFrame * CFrame.new(right * 5, up * 5, forward * 5)).lookVector
+            plr.Character.HumanoidRootPart.Velocity = direction * Settings.FlyValue
         elseif Settings.FlyMethod == "CFrame" then
-
+            local forward = (UserInputService:IsKeyDown(Enum.KeyCode.W) and 1 or 0) - (UserInputService:IsKeyDown(Enum.KeyCode.S) and 1 or 0)
+            local right = (UserInputService:IsKeyDown(Enum.KeyCode.D) and 1 or 0) - (UserInputService:IsKeyDown(Enum.KeyCode.A) and 1 or 0)
+            local up = (UserInputService:IsKeyDown(Enum.KeyCode.Space) and 1 or 0) - (UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) and 1 or 0)
+            local direction = (Camera.CFrame * CFrame.new(right * 5, up * 5, forward * 5)).lookVector
+            plr.Character.HumanoidRootPart.CFrame = plr.Character.HumanoidRootPart.CFrame + direction * Settings.FlyValue/100
         end
     end
 end
