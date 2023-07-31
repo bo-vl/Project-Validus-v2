@@ -615,7 +615,7 @@ local ClosestPathfinding = function()
     local Distance = math.huge
     for _,v in ipairs(plrs:GetPlayers()) do
         if v ~= plr and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
-            local magnitude = (v.Character.HumanoidRootPart.Position - plr.Character.HumanoidRootPart.Position).Magnitude
+            local magnitude = (v.Character:FindFirstChild("HumanoidRootPart").Position - plr.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude
             if magnitude < Distance then
                 Closest = v.Character.HumanoidRootPart
                 Distance = magnitude
