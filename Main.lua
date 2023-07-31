@@ -653,6 +653,7 @@ local Walking = function()
                             if distance > 4 then
                                 plr.Character.Humanoid:MoveTo(waypoint.Position)
                                 plr.Character.Humanoid.MoveToFinished:Wait()
+                                Camera.CFrame = CFrame.new(Camera.CFrame.Position, closestPlayer.Position)
                             else
                                 break
                             end
@@ -663,6 +664,7 @@ local Walking = function()
                     local duration = distance * 0.1
 
                     Util.CTween:go(plr, CFrame.new(targetPosition), duration)
+                    Camera.CFrame = CFrame.new(Camera.CFrame.Position, closestPlayer.Position)
                 elseif Settings.Botmethod == "Teleport" then
                     local path = Pathfinding:CreatePath({
                         AgentRadius = 2,
@@ -682,6 +684,7 @@ local Walking = function()
                             local distance = (humanoidRootPart.Position - targetPosition).Magnitude
                             if distance > 4 then
                                 plr.Character.HumanoidRootPart.CFrame = CFrame.new(waypoint.Position) + Vector3.new(0, 3, 0)
+                                Camera.CFrame = CFrame.new(Camera.CFrame.Position, closestPlayer.Position)
                                 wait(0.1)
                             else
                                 break
@@ -883,7 +886,10 @@ local Autoequipe = function()
     end
 end
 
-plr.CharacterAdded:Connect(Autoequipe)
+plr.CharacterAdded:Connect(function()
+    wait(1)
+    Autoequipe()
+end)
 
 RunService.RenderStepped:Connect(function()
     GunVisuals()
