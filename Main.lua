@@ -883,6 +883,8 @@ local Autoequipe = function()
     end
 end
 
+plr.CharacterAdded:Connect(Autoequipe)
+
 RunService.RenderStepped:Connect(function()
     GunVisuals()
     Walking()
@@ -896,7 +898,6 @@ RunService.Heartbeat:Connect(function()
     Camlock()
     Speed()
     Fly()
-    Autoequipe()
 end)
 
 Library:OnUnload(function()
