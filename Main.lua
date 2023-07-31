@@ -42,7 +42,6 @@ local Settings = {
     Botmethod = "Tween",
     autoequipe = false,
     equipeNumber = 1,
-
     --Movement
     Fly = false,
     Speed = false,
@@ -284,7 +283,7 @@ Silent:AddDropdown('MyDropdown', {
     Values = { 'Raycast', 'FindPartOnRay', 'FindPartOnRayWithWhitelist', 'FindPartOnRayWithIgnoreList'},
     Default = 1,
     Multi = false, 
-    Text = 'A dropdown',
+    Text = 'Silent method',
     Tooltip = 'Methington',
     Callback = function(Value)
         Settings.Method = Value
