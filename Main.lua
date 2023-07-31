@@ -40,6 +40,8 @@ local Settings = {
     GunVisuals = false,
     Bot = false,
     Botmethod = "Tween",
+    autoequipe = false,
+    equipeNumber = 1,
 
     --Movement
     Fly = false,
@@ -416,6 +418,28 @@ Bot:AddDropdown('bot', {
 
     Callback = function(Value)
         Settings.Botmethod = Value
+    end
+})
+
+Bot:AddToggle('Bot', {
+    Text = 'Auto Equipe',
+    Default = false,
+    Tooltip = 'equipe tool',
+    Callback = function(Value)
+        Settings.autoequipe = Value
+    end
+})
+
+Bot:AddDropdown('bot', {
+    Values = { '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'},
+    Default = 1, 
+    Multi = false,
+
+    Text = 'Auto Equipe tool',
+    Tooltip = 'equipe tool',
+
+    Callback = function(Value)
+        Settings.equipeNumber = Value
     end
 })
 
@@ -850,6 +874,15 @@ local AntiAim = function()
     end
 end
 
+local Autoequipe = function()
+    if Settings.autoequipe then
+        local tool = plr.Backpack:GetChildren()[Settings.equipeNumber]
+        if tool then
+            plr.Character.Humanoid:EquipTool(tool)
+        end
+    end
+end
+
 RunService.RenderStepped:Connect(function()
     GunVisuals()
     Walking()
@@ -863,6 +896,7 @@ RunService.Heartbeat:Connect(function()
     Camlock()
     Speed()
     Fly()
+    Autoequipe()
 end)
 
 Library:OnUnload(function()
