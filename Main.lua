@@ -745,7 +745,6 @@ OldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
     end
     return OldNamecall(...)
 end))  
-  
 
 local healthBars = {}
 
@@ -771,31 +770,27 @@ local updateHealthBars = function()
                 healthBars[v] = healthBar
             end
 
-            if Settings.HealthBar and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
+            if Settings.HealthBar and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 and v.Character:FindFirstChild("HumanoidRootPart") then
                 local humanoidRootPart = v.Character:FindFirstChild("HumanoidRootPart")
-                if humanoidRootPart then
-                    local pos, vis = Camera.WorldToViewportPoint(Camera, humanoidRootPart.Position + Vector3.new(2.5, 0, 0))
-                    if vis then
-                        local healthPercent = v.Character.Humanoid.Health / v.Character.Humanoid.MaxHealth
+                local pos, vis = Camera.WorldToViewportPoint(Camera, humanoidRootPart.Position + Vector3.new(2.5, 0, 0))
+                if vis then
+                    local healthPercent = v.Character.Humanoid.Health / v.Character.Humanoid.MaxHealth
 
-                        local distance = (cameraCFrame.Position - humanoidRootPart.Position).Magnitude
-                        local scale = math.clamp(1 / (distance * 0.02), 0.5, 2.5)
+                    local distance = (cameraCFrame.Position - humanoidRootPart.Position).Magnitude
+                    local scale = math.clamp(1 / (distance * 0.02), 0.5, 2.5)
 
-                        local healthBarSize = Vector2.new(4 * scale, 40 * scale * healthPercent)
+                    local healthBarSize = Vector2.new(4 * scale, 40 * scale * healthPercent)
 
-                        healthBar.Visible = true
-                        healthBar.Position = Vector2.new(pos.X, pos.Y) - Vector2.new(0, healthBarSize.Y / 2)
+                    healthBar.Visible = true
+                    healthBar.Position = Vector2.new(pos.X, pos.Y) - Vector2.new(0, healthBarSize.Y / 2)
 
-                        if healthPercent > 0.5 then
-                            healthBar.Color = Color3.fromRGB((1 - healthPercent) * 510, 255, 0)
-                        else
-                            healthBar.Color = Color3.fromRGB(255, healthPercent * 510, 0)
-                        end
-
-                        healthBar.Size = healthBarSize
+                    if healthPercent > 0.5 then
+                        healthBar.Color = Color3.fromRGB((1 - healthPercent) * 510, 255, 0)
                     else
-                        healthBar.Visible = false
+                        healthBar.Color = Color3.fromRGB(255, healthPercent * 510, 0)
                     end
+
+                    healthBar.Size = healthBarSize
                 else
                     healthBar.Visible = false
                 end
@@ -805,6 +800,7 @@ local updateHealthBars = function()
         end
     end
 end
+
 plrs.PlayerAdded:Connect(function(player)
     healthBars[player] = createSquare(Color3.fromRGB(0, 255, 0), Vector2.new(4, 40), Color3.fromRGB(0, 0, 0))
 end)
@@ -893,12 +889,15 @@ plr.CharacterAdded:Connect(function()
     Autoequipe()
 end)
 
-RunService.Heartbeat:Connect(function()
+RunService.RenderStepped:Connect(function()
+    Walking()
     updateHealthBars()
+end)
+
+RunService.Heartbeat:Connect(function()
     TriggerBot()
     Camlock()
     AntiAim()
-    Walking()
     GunVisuals()
     Fov()
     Tracers()
