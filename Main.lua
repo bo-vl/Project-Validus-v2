@@ -931,7 +931,7 @@ MenuGroup:AddToggle('keybindframe', {
 
 UserInputService.InputBegan:Connect(function(Input, GameProcessed)
     if not GameProcessed then
-        if Input.KeyCode == Enum.KeyCode[Options.MenuKeybind] then
+        if Input.KeyCode == Enum.KeyCode[Options.MenuKeybind.Value] then
             if Settings.TriggerBot then
                 Settings.TriggerBot = false
             end
