@@ -236,7 +236,7 @@ Silent:AddLabel('Silent aim'):AddKeyPicker('Silentaim', {
     end,
 })
 
-Silent:AddLabel('Trigger bot'):AddKeyPicker('Triggerbot', {
+Silent:AddLabel('Triggerbot'):AddKeyPicker('Triggerbot', {
     Default = '',
     SyncToggleState = false,
     Mode = 'Toggle',
@@ -922,11 +922,22 @@ local MyButton = MenuGroup:AddButton({
 })
 
 MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'End', NoUI = true, Text = 'Menu keybind' })
+Library.ToggleKeybind = Options.MenuKeybind
 MenuGroup:AddToggle('keybindframe', {
     Text = 'Keybind Frame',
     Default = false,
     Tooltip = 'Toggles KeybindFrame',
 })
+
+UserInputService.InputBegan:Connect(function(Input, GameProcessed)
+    if not GameProcessed then
+        if Input.KeyCode == Enum.KeyCode[Options.MenuKeybind] then
+            if Settings.TriggerBot then
+                Settings.TriggerBot = false
+            end
+        end
+    end
+end)
 
 Toggles.keybindframe:OnChanged(function()
     Library.KeybindFrame.Visible = Toggles.keybindframe.Value
