@@ -893,26 +893,15 @@ plr.CharacterAdded:Connect(function()
     Autoequipe()
 end)
 
-RunService.RenderStepped:Connect(function()
-    if Settings.HealthBar then
-        updateHealthBars()
-    end
-    if Settings.GunVisuals then
-        GunVisuals()
-    end
-    if Settings.Walking then
-        Walking()
-    end
-    if Settings.AntiAim then
-        AntiAim()
-    end
-end)
-
 RunService.Heartbeat:Connect(function()
-    Fov()
-    Tracers()
+    updateHealthBars()
     TriggerBot()
     Camlock()
+    AntiAim()
+    Walking()
+    GunVisuals()
+    Fov()
+    Tracers()
     Speed()
     Fly()
 end)
