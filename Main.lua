@@ -11,8 +11,8 @@ if not isfolder(Folder) then
     makefolder(Folder)
 end
 
-local plr = game:GetService("Players").LocalPlayer
 local plrs = game:GetService("Players")
+local plr = plrs.LocalPlayer
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local GetMouseLocation = UserInputService.GetMouseLocation
@@ -761,7 +761,7 @@ local function createSquare(color, size, outlineColor)
     return square
 end
 
-local function updateHealthBars()
+local updateHealthBars = function()
     local cameraCFrame = Camera.CFrame
     for _, v in pairs(plrs:GetChildren()) do
         if v.Name ~= plr.Name then
@@ -805,7 +805,6 @@ local function updateHealthBars()
         end
     end
 end
-
 plrs.PlayerAdded:Connect(function(player)
     healthBars[player] = createSquare(Color3.fromRGB(0, 255, 0), Vector2.new(4, 40), Color3.fromRGB(0, 0, 0))
 end)
@@ -895,9 +894,18 @@ plr.CharacterAdded:Connect(function()
 end)
 
 RunService.RenderStepped:Connect(function()
-    GunVisuals()
-    Walking()
-    AntiAim()
+    if Settings.HealthBar then
+        updateHealthBars()
+    end
+    if Settings.GunVisuals then
+        GunVisuals()
+    end
+    if Settings.Walking then
+        Walking()
+    end
+    if Settings.AntiAim then
+        AntiAim()
+    end
 end)
 
 RunService.Heartbeat:Connect(function()
