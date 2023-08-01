@@ -16,7 +16,7 @@ local plr = plrs.LocalPlayer
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local GetMouseLocation = UserInputService.GetMouseLocation
-local ValidTargetParts = {"Head", "HumanoidRootPart"}
+local ValidTargetParts = {"Head", "HumanoidRootPart", "Torso", "UpperTorso", "LowerTorso", "RightUpperArm", "LeftUpperArm", "RightLowerArm", "LeftLowerArm", "RightHand", "LeftHand", "RightUpperLeg", "LeftUpperLeg", "RightLowerLeg", "LeftLowerLeg", "RightFoot", "LeftFoot"}
 local mouse = plr:GetMouse()
 local Camera = workspace.CurrentCamera
 local FindFirstChild = game.FindFirstChild
@@ -268,7 +268,7 @@ Silent:AddToggle('VisibleCheck', {
 })
 
 Silent:AddDropdown('HitPart', {
-    Values = {'Random', 'Head', 'HumanoidRootPart'},
+    Values = {'Random', "Head", "HumanoidRootPart", "Torso", "UpperTorso", "LowerTorso", "RightUpperArm", "LeftUpperArm", "RightLowerArm", "LeftLowerArm", "RightHand", "LeftHand", "RightUpperLeg", "LeftUpperLeg", "RightLowerLeg", "LeftLowerLeg", "RightFoot", "LeftFoot"},
     Default = 1,
     Multi = false, 
     Text = 'HitPart',
