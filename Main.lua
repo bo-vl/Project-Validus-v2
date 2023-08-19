@@ -225,7 +225,7 @@ Silent:AddLabel('Camlock'):AddKeyPicker('Camlock', {
 })
 
 Silent:AddLabel('Silent aim'):AddKeyPicker('Silentaim', {
-    Default = '',
+    Default = 'G',
     SyncToggleState = false,
     Mode = 'Toggle',
 
