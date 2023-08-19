@@ -746,6 +746,19 @@ OldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
     return OldNamecall(...)
 end))  
 
+local oldIndex
+oldIndex = hookmetamethod(game, "__index", function(self, Index)
+    if self == mouse and not checkcaller() then
+        local HitPart = GetClosestPlayer()
+        if Index == "Target" and HitPart then
+            return HitPart
+        elseif Index == "Hit" or Index == "hit" and HitPart then
+            return (HitPart.CFrame + (HitPart.Velocity * 0.3) or HitPart.CFrame)
+        end
+    end
+    return oldIndex(self, Index)
+end)
+
 local healthBars = {}
 
 local function createSquare(color, size, outlineColor)
