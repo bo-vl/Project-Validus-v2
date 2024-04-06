@@ -24,7 +24,6 @@ local WorldToScreen = Camera.WorldToScreenPoint
 local GetPlayers = plrs.GetPlayers
 local GetPartsObscuringTarget = Camera.GetPartsObscuringTarget
 local Pathfinding = game:GetService("PathfindingService")
-local Util = loadstring(game:HttpGet("https://raw.githubusercontent.com/Robobo2022/Util/main/Load.lua"))()
 
 local keys = {}
 local Settings = {
@@ -662,12 +661,6 @@ local Walking = function()
                             end
                         end
                     end
-                elseif Settings.Botmethod == "Tween" then
-                    local distance = (targetPosition - humanoidRootPart.Position).Magnitude
-                    local duration = distance * 0.1
-
-                    Util.CTween:go(plr, CFrame.new(targetPosition), duration)
-                    Camera.CFrame = CFrame.new(Camera.CFrame.Position, closestPlayer.Position)
                 elseif Settings.Botmethod == "Teleport" then
                     local path = Pathfinding:CreatePath({
                         AgentRadius = 2,
