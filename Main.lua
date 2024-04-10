@@ -24,6 +24,7 @@ local WorldToScreen = Camera.WorldToScreenPoint
 local GetPlayers = plrs.GetPlayers
 local GetPartsObscuringTarget = Camera.GetPartsObscuringTarget
 local Pathfinding = game:GetService("PathfindingService")
+local Util = loadstring(game:HttpGet("https://raw.githubusercontent.com/Robobo2022/Util/main/Load.lua"))()
 
 local keys = {}
 local Settings = {
@@ -627,8 +628,13 @@ local ClosestPathfinding = function()
     return Closest
 end
 
+local closestPlayer = nil
+
 local Walking = function()
-    local closestPlayer = ClosestPathfinding()
+    if not closestPlayer then
+        closestPlayer = ClosestPathfinding()
+    end
+
     if Settings.Bot then
         if closestPlayer then
             local humanoidRootPart = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
@@ -654,13 +660,18 @@ local Walking = function()
                             local distance = (humanoidRootPart.Position - targetPosition).Magnitude
                             if distance > 4 then
                                 plr.Character.Humanoid:MoveTo(waypoint.Position)
-                                plr.Character.Humanoid.MoveToFinished:Wait()
                                 Camera.CFrame = CFrame.new(Camera.CFrame.Position, closestPlayer.Position)
                             else
                                 break
                             end
                         end
                     end
+                elseif Settings.Botmethod == "Tween" then
+                    local distance = (targetPosition - humanoidRootPart.Position).Magnitude
+                    local duration = distance * 0.1
+
+                    Util.CTween:go(CFrame.new(targetPosition), duration)
+                    Camera.CFrame = CFrame.new(Camera.CFrame.Position, closestPlayer.Position)
                 elseif Settings.Botmethod == "Teleport" then
                     local path = Pathfinding:CreatePath({
                         AgentRadius = 2,
@@ -738,19 +749,6 @@ OldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
     end
     return OldNamecall(...)
 end))  
-
-local oldIndex
-oldIndex = hookmetamethod(game, "__index", function(self, Index)
-    if self == mouse and not checkcaller() then
-        local HitPart = GetClosestPlayer()
-        if Index == "Target" and HitPart then
-            return HitPart
-        elseif Index == "Hit" or Index == "hit" and HitPart then
-            return (HitPart.CFrame + (HitPart.Velocity * 0.3) or HitPart.CFrame)
-        end
-    end
-    return oldIndex(self, Index)
-end)
 
 local healthBars = {}
 
@@ -890,10 +888,6 @@ local Autoequipe = function()
     end
 end
 
-plr.CharacterAdded:Connect(function()
-    wait(1)
-    Autoequipe()
-end)
 
 RunService.RenderStepped:Connect(function()
     Walking()
@@ -901,6 +895,7 @@ RunService.RenderStepped:Connect(function()
 end)
 
 RunService.Heartbeat:Connect(function()
+    Autoequipe()
     TriggerBot()
     Camlock()
     AntiAim()
@@ -915,7 +910,7 @@ Library:OnUnload(function()
     Library.Unloaded = true
 end)
 
-Library:SetWatermark(('Project Validus V2 | User: ' .. plr.Name .. ' | Version: 2.0.5'))
+Library:SetWatermark(('Project Validus V2 | User: ' .. plr.Name .. ' | Version: 2.1'))
 
 local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
 local MyButton = MenuGroup:AddButton({
