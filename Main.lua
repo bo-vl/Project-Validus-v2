@@ -40,6 +40,7 @@ local Settings = {
     GunVisuals = false,
     Bot = false,
     Botmethod = "Tween",
+    ShowPath = false,
     autoequipe = false,
     equipeNumber = 1,
     --Movement
@@ -408,15 +409,24 @@ Bot:AddToggle('Bot', {
 })
 
 Bot:AddDropdown('bot', {
-    Values = { 'Tween', 'Walking', 'Teleport'},
+    Values = { 'Tween', 'Walking'},
     Default = 1, 
     Multi = false,
 
     Text = 'Bot Method',
-    Tooltip = 'Material',
+    Tooltip = 'Bot Method',
 
     Callback = function(Value)
         Settings.Botmethod = Value
+    end
+})
+
+Bot:AddToggle('Bot', {
+    Text = 'ShowPath',
+    Default = false,
+    Tooltip = 'Shows the path',
+    Callback = function(Value)
+        Settings.ShowPath = Value
     end
 })
 
@@ -609,17 +619,19 @@ local Speed = function()
     end
 end
 
+local ClosestPathFind = nil
+
 local ClosestPathfinding = function()
     local Closest = nil
     local Distance = math.huge
-    for _, v in ipairs(plrs:GetPlayers()) do
-        if v ~= plr and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
-            local plrHRP = plr.Character:FindFirstChild("HumanoidRootPart")
-            local vHRP = v.Character:FindFirstChild("HumanoidRootPart")
-            if plrHRP and vHRP then
-                local magnitude = (vHRP.Position - plrHRP.Position).Magnitude
+    for _,v in ipairs(plrs:GetPlayers()) do
+        if v ~= plr and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
+            local hrp = v.Character:FindFirstChild("HumanoidRootPart")
+            local lhrp = plr.Character:FindFirstChild("HumanoidRootPart")
+            if hrp and lhrp then
+                local magnitude = (hrp.Position - lhrp.Position).Magnitude
                 if magnitude < Distance then
-                    Closest = vHRP
+                    Closest = hrp
                     Distance = magnitude
                 end
             end
@@ -628,79 +640,33 @@ local ClosestPathfinding = function()
     return Closest
 end
 
-local closestPlayer = nil
-
 local Walking = function()
-    if not closestPlayer then
-        closestPlayer = ClosestPathfinding()
+    if not Settings.Bot then
+        return
     end
 
-    if Settings.Bot then
-        if closestPlayer then
-            local humanoidRootPart = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
-            if humanoidRootPart then
-                local targetPosition = closestPlayer.Position
+    local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
 
-                if Settings.Botmethod == "Walking" then
-                    local path = Pathfinding:CreatePath({
-                        AgentRadius = 2,
-                        AgentHeight = 5,
-                        AgentCanJump = true,
-                        AgentCanClimb = true,
-                        AgentJumpHeight = 8,
-                        AgentMaxSlope = 45,
-                    })
+    if not hrp then
+        return
+    end
 
-                    path:ComputeAsync(humanoidRootPart.Position, targetPosition)
+    if not ClosestPathFind then
+        ClosestPathFind = ClosestPathfinding()
+    end
 
-                    if path.Status == Enum.PathStatus.Success then
-                        local waypoints = path:GetWaypoints()
+    if Settings.ShowPath then
+        Util.PathFind.ShowPath(ClosestPathFind.CFrame)
+    elseif not Settings.ShowPath then
+        Util.PathFind.RemovePath()
+    end
 
-                        for _, waypoint in ipairs(waypoints) do
-                            local distance = (humanoidRootPart.Position - targetPosition).Magnitude
-                            if distance > 4 then
-                                plr.Character.Humanoid:MoveTo(waypoint.Position)
-                                Camera.CFrame = CFrame.new(Camera.CFrame.Position, closestPlayer.Position)
-                            else
-                                break
-                            end
-                        end
-                    end
-                elseif Settings.Botmethod == "Tween" then
-                    local distance = (targetPosition - humanoidRootPart.Position).Magnitude
-                    local duration = distance * 0.1
-
-                    Util.CTween:go(CFrame.new(targetPosition), duration)
-                    Camera.CFrame = CFrame.new(Camera.CFrame.Position, closestPlayer.Position)
-                elseif Settings.Botmethod == "Teleport" then
-                    local path = Pathfinding:CreatePath({
-                        AgentRadius = 2,
-                        AgentHeight = 5,
-                        AgentCanJump = true,
-                        AgentCanClimb = true,
-                        AgentJumpHeight = 8,
-                        AgentMaxSlope = 45,
-                    })
-
-                    path:ComputeAsync(humanoidRootPart.Position, targetPosition)
-
-                    if path.Status == Enum.PathStatus.Success then
-                        local waypoints = path:GetWaypoints()
-
-                        for _, waypoint in ipairs(waypoints) do
-                            local distance = (humanoidRootPart.Position - targetPosition).Magnitude
-                            if distance > 4 then
-                                plr.Character.HumanoidRootPart.CFrame = CFrame.new(waypoint.Position) + Vector3.new(0, 3, 0)
-                                Camera.CFrame = CFrame.new(Camera.CFrame.Position, closestPlayer.Position)
-                                wait(0.1)
-                            else
-                                break
-                            end
-                        end
-                    end
-                end
-            end
-        end
+    if Settings.Botmethod == "Walking" then
+        Util.PathFind.MoveCharacter(ClosestPathFind.CFrame)
+    end
+    if Settings.Botmethod == "Tween" then
+        local duration = (ClosestPathFind.Position - hrp.Position).Magnitude * 0.1
+        Util.CTween:go(ClosestPathFind.CFrame, duration)
     end
 end
 
@@ -888,13 +854,9 @@ local Autoequipe = function()
     end
 end
 
-
-RunService.RenderStepped:Connect(function()
-    Walking()
-    updateHealthBars()
-end)
-
 RunService.Heartbeat:Connect(function()
+    updateHealthBars()
+    Walking()
     Autoequipe()
     TriggerBot()
     Camlock()
