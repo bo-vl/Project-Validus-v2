@@ -1,6 +1,6 @@
 local plrs = game:GetService("Players")
 local lplr = plrs.LocalPlayer
-local Camera = workspace.CurrentCamera
+local Camera = game:GetService("Workspace").CurrentCamera
 local GetPlayers = plrs.GetPlayers
 local GetPartsObscuringTarget = Camera.GetPartsObscuringTarget
 local mouse = lplr:GetMouse()
