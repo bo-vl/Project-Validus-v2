@@ -65,7 +65,8 @@ end
 
 functions.HitChance = function(Percentage)
     Percentage = math.floor(Percentage)
-    local chance = Random.new():NextNumber(0, 1)
+    local chance = math.floor(Random.new().NextNumber(Random.new(),0,1) * 100) / 100
+
     return chance <= Percentage / 100
 end
 
