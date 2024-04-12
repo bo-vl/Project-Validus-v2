@@ -25,6 +25,7 @@ local GetPlayers = plrs.GetPlayers
 local GetPartsObscuringTarget = Camera.GetPartsObscuringTarget
 local Pathfinding = game:GetService("PathfindingService")
 local Util = loadstring(game:HttpGet("https://raw.githubusercontent.com/Robobo2022/Util/main/Load.lua"))()
+local func = loadstring(game:HttpGet("https://raw.githubusercontent.com/Robobo2022/Util/main/func.lua"))()
 
 local keys = {}
 local Settings = {

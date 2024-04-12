@@ -67,7 +67,7 @@ functions.HitChance = function(Percentage)
 end
 
 functions.Direction = function(Origin, Pos)
-    return (Pos - Origin).unit
+    return (Pos - Origin).Unit * 1000
 end
 
 return functions
