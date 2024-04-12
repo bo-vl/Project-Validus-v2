@@ -6,11 +6,12 @@ local GetPartsObscuringTarget = Camera.GetPartsObscuringTarget
 local mouse = lplr:GetMouse()
 local UserInputService = game:GetService("UserInputService")
 local GetMouseLocation = UserInputService.GetMouseLocation
+local WorldToScreen = Camera.WorldToScreenPoint
 
 local functions = {}
 
 functions.GetScreenPosition = function(Vector)
-    local Vec3, OnScreen = Camera.WorldToScreenPoint(Vector)
+    local Vec3, OnScreen = WorldToScreen(Vector)
     return Vector2.new(Vec3.X, Vec3.Y), OnScreen
 end
 
