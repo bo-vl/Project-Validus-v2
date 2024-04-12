@@ -81,7 +81,7 @@ local GetClosestPlayer = function()
         local Character = Player.Character
         if not Character then continue end
 
-        if Settings.VisibleCheck and not IsPlayerVisible(Player) then continue end
+        if Settings.VisibleCheck and not func.IsPlayerVisible(Player) then continue end
 
         local HumanoidRootPart = FindFirstChild(Character, "HumanoidRootPart")
         local Humanoid = FindFirstChild(Character, "Humanoid")
@@ -738,7 +738,7 @@ local Fov = function()
         Fov.Color = Settings.FovColor
         Fov.Radius = Settings.FovRadius
         Fov.Transparency = Settings.FovTransparency
-        Fov.Position = Vector2.new(mouse.X, mouse.Y + 36)
+        Fov.Position = Vector2.new(mouse.X, mouse.Y)
     else
         Fov.Visible = false
     end
@@ -750,7 +750,7 @@ local Tracers = function()
         Tracers.Visible = true
         Tracers.Color = Settings.FovTracersColor
         Tracers.Thickness = 1
-        Tracers.From = Vector2.new(mouse.X, mouse.Y + 36)
+        Tracers.From = Vector2.new(mouse.X, mouse.Y )
         if Closest then
             Tracers.To = Vector2.new(Camera:WorldToViewportPoint(Closest.Position).X, Camera:WorldToViewportPoint(Closest.Position).Y)
         else

@@ -40,26 +40,20 @@ functions.GetGun = function(Plr)
     end
 end
 
-
 functions.IsPlayerVisible = function(Player)
     local PlayerCharacter = Player.Character
     local LocalPlayerCharacter = lplr.Character
     
-    if not (PlayerCharacter and LocalPlayerCharacter) then
-        return false
-    end 
+    if not (PlayerCharacter or LocalPlayerCharacter) then return end 
     
-    local PlayerRoot = PlayerCharacter:FindFirstChild("HumanoidRootPart")
+    local PlayerRoot = FindFirstChild(PlayerCharacter, Settings.TargetPart) or FindFirstChild(PlayerCharacter, "HumanoidRootPart")
     
-    if not PlayerRoot then
-        return false
-    end 
+    if not PlayerRoot then return end 
     
-    local CastPoints = {PlayerRoot.Position, LocalPlayerCharacter.HumanoidRootPart.Position}
-    local IgnoreList = {LocalPlayerCharacter, PlayerCharacter}
-    local ObscuringObjects = GetPartsObscuringTarget(Camera, CastPoints, IgnoreList)
+    local CastPoints, IgnoreList = {PlayerRoot.Position, LocalPlayerCharacter, PlayerCharacter}, {LocalPlayerCharacter, PlayerCharacter}
+    local ObscuringObjects = #GetPartsObscuringTarget(Camera, CastPoints, IgnoreList)
     
-    return (#ObscuringObjects == 0 and true) or (#ObscuringObjects > 0 and false)
+    return ((ObscuringObjects == 0 and true) or (ObscuringObjects > 0 and false))
 end
 
 functions.HitChance = function(Percentage)
