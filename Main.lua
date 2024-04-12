@@ -25,7 +25,7 @@ local GetPlayers = plrs.GetPlayers
 local GetPartsObscuringTarget = Camera.GetPartsObscuringTarget
 local Pathfinding = game:GetService("PathfindingService")
 local Util = loadstring(game:HttpGet("https://raw.githubusercontent.com/Robobo2022/Util/main/Load.lua"))()
-local func = loadstring(game:HttpGet("https://raw.githubusercontent.com/Robobo2022/Util/main/func.lua"))()
+local func = loadstring(game:HttpGet("https://raw.githubusercontent.com/Bovanlaarhoven/Project-Validus-v2/main/utils/func.lua"))()
 
 local keys = {}
 local Settings = {
@@ -69,86 +69,26 @@ local Settings = {
     HealthBar = false,
 }
 
-local GetScreenPosition = function(Vector)
-    local Vec3, OnScreen = WorldToScreen(Camera, Vector)
-    return Vector2.new(Vec3.X, Vec3.Y), OnScreen
-end
-
-local IsTool = function(Tool)
-    return Tool:IsA("Tool")
-end
-
-local IsAlive = function(Plr)
-    return Plr.Character and Plr.Character:FindFirstChild("Humanoid") and Plr.Character.Humanoid.Health > 0
-end
-
-local TeamCheck = function(Plr)
-    return plr.Team ~= Plr.Team
-end
-
-local GetMousePosition = function()
-    return GetMouseLocation(UserInputService)
-end
-
-local Getgun = function(player)
-    local character = player.Character
-    if character then
-        for _, child in ipairs(character:GetChildren()) do
-            if IsTool(child) then
-                return child
-            end
-        end
-    end
-    return nil
-end
-
-local IsPlayerVisible = function(Player)
-    local PlayerCharacter = Player.Character
-    local LocalPlayerCharacter = plr.Character
-    
-    if not (PlayerCharacter or LocalPlayerCharacter) then return end 
-    
-    local PlayerRoot = FindFirstChild(PlayerCharacter, Settings.TargetPart) or FindFirstChild(PlayerCharacter, "HumanoidRootPart")
-    
-    if not PlayerRoot then return end 
-    
-    local CastPoints, IgnoreList = {PlayerRoot.Position, LocalPlayerCharacter, PlayerCharacter}, {LocalPlayerCharacter, PlayerCharacter}
-    local ObscuringObjects = #GetPartsObscuringTarget(Camera, CastPoints, IgnoreList)
-    
-    return ((ObscuringObjects == 0 and true) or (ObscuringObjects > 0 and false))
-end
-
-local HitChance = function(Percentage)
-    Percentage = math.floor(Percentage)
-    local chance = math.floor(Random.new().NextNumber(Random.new(),0,1) * 100) / 100
-
-    return chance <= Percentage / 100
-end
-
-local Direction = function(Origin, Position)
-    return (Position - Origin).Unit * 1000
-end
-
 local GetClosestPlayer = function()
     if not Settings.TargetPart then return end
     local Closest
     local DistanceToMouse
     for _,Player in next, GetPlayers(plrs) do
         if Player == plr then continue end
-        if Settings.TeamCheck and TeamCheck(Player) then continue end
+        if Settings.TeamCheck and func.TeamCheck(Player) then continue end
         local Character = Player.Character
         if not Character then continue end
 
-        if Settings.VisibleCheck and not IsPlayerVisible(Player) then continue end
+        if Settings.VisibleCheck and not func.IsPlayerVisible(Player) then continue end
 
         local HumanoidRootPart = FindFirstChild(Character, "HumanoidRootPart")
         local Humanoid = FindFirstChild(Character, "Humanoid")
         if not HumanoidRootPart or not Humanoid or Humanoid and Humanoid.Health <= 0 then continue end
 
-        local ScreenPosition, OnScreen = GetScreenPosition(HumanoidRootPart.Position)
+        local ScreenPosition, OnScreen = func.GetScreenPosition(HumanoidRootPart.Position)
         if not OnScreen then continue end
 
-        local Distance = (GetMousePosition() - ScreenPosition).Magnitude
+        local Distance = (func.GetMousePosition() - ScreenPosition).Magnitude
         if Distance <= (DistanceToMouse or Settings.FovRadius or 2000) then
             Closest = ((Settings.TargetPart == "Random" and Character[ValidTargetParts[math.random(1, #ValidTargetParts)]] or Character[Settings.TargetPart]))
             DistanceToMouse = Distance
@@ -160,7 +100,7 @@ end
 local TriggerBot = function()
     if Settings.TriggerBot then
         local Closest = GetClosestPlayer()
-        local mousePos = GetMousePosition()
+        local mousePos = func.GetMousePosition()
         if Closest then
             mouse1click(mousePos)
         end
@@ -171,7 +111,7 @@ local Camlock = function()
     local Target = GetClosestPlayer()
     if Settings.Camlock then
         if Camera then
-            if IsAlive(plr) then
+            if func.IsAlive(plr) then
                 if Target ~= nil then
                     local Main = CFrame.new(Camera.CFrame.Position, Target.Position)
                     Camera.CFrame = Camera.CFrame:Lerp(Main, Settings.Smoothing / 100, Enum.EasingStyle.Elastic, Enum.EasingDirection.InOut)
@@ -676,14 +616,14 @@ OldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
     local Method = getnamecallmethod()
     local Args = {...}
     local self = Args[1]
-    local chance = HitChance(Settings.HitChance)
+    local chance = func.HitChance(Settings.HitChance)
     if Settings.Enabled and self == workspace and not checkcaller() and chance == true then
         if Method == "FindPartOnRayWithIgnoreList" and Settings.Method == Method then
             local A_Ray = Args[2]
             local HitPart = GetClosestPlayer()
             if HitPart then
                 local Origin = A_Ray.Origin
-                local Direction = Direction(Origin, HitPart.Position)
+                local Direction = func.Direction(Origin, HitPart.Position)
                 Args[2] = Ray.new(Origin, Direction)
                 return OldNamecall(unpack(Args))
             end
@@ -692,7 +632,7 @@ OldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
             local HitPart = GetClosestPlayer()
             if HitPart then
                 local Origin = A_Ray.Origin
-                local Direction = Direction(Origin, HitPart.Position)
+                local Direction = func.Direction(Origin, HitPart.Position)
                 Args[2] = Ray.new(Origin, Direction)
                 return OldNamecall(unpack(Args))
             end
@@ -701,7 +641,7 @@ OldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
             local HitPart = GetClosestPlayer()
             if HitPart then
                 local Origin = A_Ray.Origin
-                local Direction = Direction(Origin, HitPart.Position)
+                local Direction = func.Direction(Origin, HitPart.Position)
                 Args[2] = Ray.new(Origin, Direction)
                 return OldNamecall(unpack(Args))
             end
@@ -709,7 +649,7 @@ OldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
             local A_Origin = Args[2]
             local HitPart = GetClosestPlayer()
             if HitPart then
-                Args[3] = Direction(A_Origin, HitPart.Position)
+                Args[3] = func.Direction(A_Origin, HitPart.Position)
                 return OldNamecall(unpack(Args))
             end
         end
@@ -821,7 +761,7 @@ end
 
 local GunVisuals = function()
     if Settings.GunVisuals then
-        local gun = Getgun(plr)
+        local gun = func.Getgun(plr)
         if gun then
             for _,v in pairs(gun:GetDescendants()) do
                 if v:IsA("MeshPart") then

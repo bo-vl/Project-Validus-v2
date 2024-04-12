@@ -8,7 +8,7 @@ local mouse = lplr:GetMouse()
 local functions = {}
 
 functions.GetScreenPosition = function(Vector)
-    local Vec3 = Camera:WorldToViewportPoint(Vector)
+    local Vec3 = Camera:WorldToScreenPoint(Vector)
     local OnScreen = Vec3.Z > 0
     return Vector2.new(Vec3.X, Vec3.Y), OnScreen
 end
