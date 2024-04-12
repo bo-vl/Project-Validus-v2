@@ -4,6 +4,8 @@ local Camera = workspace.CurrentCamera
 local GetPlayers = plrs.GetPlayers
 local GetPartsObscuringTarget = Camera.GetPartsObscuringTarget
 local mouse = lplr:GetMouse()
+local UserInputService = game:GetService("UserInputService")
+local GetMouseLocation = UserInputService.GetMouseLocation
 
 local functions = {}
 
@@ -26,7 +28,7 @@ functions.TeamCheck = function(Plr)
 end
 
 functions.GetMousePosition = function()
-    return Vector2.new(mouse.X, mouse.Y)
+    return GetMouseLocation(UserInputService)
 end
 
 functions.GetGun = function(Plr)
