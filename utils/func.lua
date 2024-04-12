@@ -1,5 +1,3 @@
-repeat wait() until game:IsLoaded()
-
 local plrs = game:GetService("Players")
 local lplr = plrs.LocalPlayer
 local Camera = workspace.CurrentCamera
@@ -42,6 +40,7 @@ functions.GetGun = function(Plr)
     end
 end
 
+
 functions.IsPlayerVisible = function(Player)
     local PlayerCharacter = Player.Character
     local LocalPlayerCharacter = lplr.Character
@@ -60,7 +59,7 @@ functions.IsPlayerVisible = function(Player)
     local IgnoreList = {LocalPlayerCharacter, PlayerCharacter}
     local ObscuringObjects = GetPartsObscuringTarget(Camera, CastPoints, IgnoreList)
     
-    return #ObscuringObjects == 0
+    return (#ObscuringObjects == 0 and true) or (#ObscuringObjects > 0 and false)
 end
 
 functions.HitChance = function(Percentage)

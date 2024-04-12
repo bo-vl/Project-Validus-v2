@@ -17,24 +17,24 @@ local plrs = game:GetService("Players")
 local plr = plrs.LocalPlayer
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local GetMouseLocation = UserInputService.GetMouseLocation
 local ValidTargetParts = {"Head", "HumanoidRootPart", "Torso", "UpperTorso", "LowerTorso", "RightUpperArm", "LeftUpperArm", "RightLowerArm", "LeftLowerArm", "RightHand", "LeftHand", "RightUpperLeg", "LeftUpperLeg", "RightLowerLeg", "LeftLowerLeg", "RightFoot", "LeftFoot"}
 local mouse = plr:GetMouse()
 local Camera = workspace.CurrentCamera
 local FindFirstChild = game.FindFirstChild
-local WorldToScreen = Camera.WorldToScreenPoint
 local GetPlayers = plrs.GetPlayers
 local GetPartsObscuringTarget = Camera.GetPartsObscuringTarget
 local Pathfinding = game:GetService("PathfindingService")
 local Util = loadstring(game:HttpGet("https://raw.githubusercontent.com/Robobo2022/Util/main/Load.lua"))()
 local func = loadstring(game:HttpGet("https://raw.githubusercontent.com/Bovanlaarhoven/Project-Validus-v2/main/utils/func.lua"))()
 
+repeat wait() until plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") and plr.Character:FindFirstChild("Humanoid") and Camera
+
 local keys = {}
 local Settings = {
     Camlock = false,
     TriggerBot = false,
     Enabled = false,
-    Method = "Raycast",
+    Method = "",
     TeamCheck = false,
     TargetPart = "Head",
     HitChance = 100, 
@@ -81,7 +81,7 @@ local GetClosestPlayer = function()
         local Character = Player.Character
         if not Character then continue end
 
-        if Settings.VisibleCheck and not func.IsPlayerVisible(Player) then continue end
+        if Settings.VisibleCheck and not IsPlayerVisible(Player) then continue end
 
         local HumanoidRootPart = FindFirstChild(Character, "HumanoidRootPart")
         local Humanoid = FindFirstChild(Character, "Humanoid")
@@ -225,7 +225,7 @@ Silent:AddDropdown('HitPart', {
 
 Silent:AddDropdown('MyDropdown', {
     Values = { 'Raycast', 'FindPartOnRay', 'FindPartOnRayWithWhitelist', 'FindPartOnRayWithIgnoreList'},
-    Default = 1,
+    Default = 0,
     Multi = false, 
     Text = 'Silent method',
     Tooltip = 'Methington',
@@ -619,7 +619,7 @@ OldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
     local Args = {...}
     local self = Args[1]
     local chance = func.HitChance(Settings.HitChance)
-    if Settings.Enabled and self == workspace and not checkcaller() and chance == true then
+    if Settings.Enabled and self == workspace and not checkcaller() then
         if Method == "FindPartOnRayWithIgnoreList" and Settings.Method == Method then
             local A_Ray = Args[2]
             local HitPart = GetClosestPlayer()
