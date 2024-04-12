@@ -1,3 +1,5 @@
+repeat wait() until game:IsLoaded()
+
 for _, v in pairs(getconnections(game:GetService("ScriptContext").Error)) do
     v:Disable()
 end
@@ -617,7 +619,7 @@ OldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
     local Args = {...}
     local self = Args[1]
     local chance = func.HitChance(Settings.HitChance)
-    if Settings.Enabled and self == workspace and not checkcaller() then
+    if Settings.Enabled and self == workspace and not checkcaller() and chance == true then
         if Method == "FindPartOnRayWithIgnoreList" and Settings.Method == Method then
             local A_Ray = Args[2]
             local HitPart = GetClosestPlayer()
