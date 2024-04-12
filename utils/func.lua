@@ -6,7 +6,7 @@ local GetPartsObscuringTarget = Camera.GetPartsObscuringTarget
 local mouse = lplr:GetMouse()
 local UserInputService = game:GetService("UserInputService")
 local GetMouseLocation = UserInputService.GetMouseLocation
-local WorldToScreen = Camera.WorldToScreenPoint
+local WorldToScreen = Camera:WorldToScreenPoint
 
 local functions = {}
 
