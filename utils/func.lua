@@ -10,7 +10,7 @@ local GetMouseLocation = UserInputService.GetMouseLocation
 local functions = {}
 
 functions.GetScreenPosition = function(Vector)
-    local Vec3, OnScreen = Camera:WorldToScreenPoint(Vector)
+    local Vec3, OnScreen = workspace.CurrentCamera:WorldToScreenPoint(Vector)
     return Vector2.new(Vec3.X, Vec3.Y), OnScreen
 end
 
@@ -67,7 +67,7 @@ functions.HitChance = function(Percentage)
     return chance <= Percentage / 100
 end
 
-functions.Direction = function(Pos, Origin)
+functions.Direction = function(Origin, Pos)
     return (Pos - Origin).Unit * 1000
 end
 
