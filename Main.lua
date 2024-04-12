@@ -20,6 +20,7 @@ local ValidTargetParts = {"Head", "HumanoidRootPart", "Torso", "UpperTorso", "Lo
 local mouse = plr:GetMouse()
 local Camera = workspace.CurrentCamera
 local FindFirstChild = game.FindFirstChild
+local WorldToScreen = Camera.WorldToScreenPoint
 local GetPlayers = plrs.GetPlayers
 local GetPartsObscuringTarget = Camera.GetPartsObscuringTarget
 local Pathfinding = game:GetService("PathfindingService")
@@ -646,7 +647,7 @@ OldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
             end
         elseif Method == "Raycast" and Settings.Method == Method then
             local A_Origin = Args[2]
-            local HitPart = GetClosestPlayer()
+            local HitPart = GetClosestPlayer()  
             if HitPart then
                 Args[3] = func.Direction(A_Origin, HitPart.Position)
                 return OldNamecall(unpack(Args))
