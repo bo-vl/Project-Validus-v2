@@ -827,6 +827,15 @@ local MyButton = MenuGroup:AddButton({
     Tooltip = 'Unload Script'
 })
 
+MenuGroup:AddButton({
+    Text = 'Rejoin',
+    Func = function()
+        game:GetService('TeleportService'):TeleportToPlaceInstance(game.PlaceId, game.JobId, plr)
+    end,
+    DoubleClick = true,
+    Tooltip = 'Rejoin game'
+})
+
 MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'End', NoUI = true, Text = 'Menu keybind' })
 Library.ToggleKeybind = Options.MenuKeybind
 MenuGroup:AddToggle('keybindframe', {
