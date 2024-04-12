@@ -1,7 +1,6 @@
 local plrs = game:GetService("Players")
 local lplr = plrs.LocalPlayer
 local Camera = workspace.CurrentCamera
-local WorldToScreen = Camera.WorldToScreenPoint
 local GetPlayers = plrs.GetPlayers
 local GetPartsObscuringTarget = Camera.GetPartsObscuringTarget
 local mouse = lplr:GetMouse()
@@ -11,7 +10,7 @@ local GetMouseLocation = UserInputService.GetMouseLocation
 local functions = {}
 
 functions.GetScreenPosition = function(Vector)
-    local Vec3, OnScreen = Camera:WorldToScreenPoint(Camera, Vector)
+    local Vec3, OnScreen = WorldToScreen(Camera, Vector)
     return Vector2.new(Vec3.X, Vec3.Y), OnScreen
 end
 
