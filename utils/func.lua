@@ -10,8 +10,7 @@ local GetMouseLocation = UserInputService.GetMouseLocation
 local functions = {}
 
 functions.GetScreenPosition = function(Vector)
-    local Vec3 = Camera:WorldToScreenPoint(Vector)
-    local OnScreen = Vec3.Z > 0
+    local Vec3, OnScreen = Camera:WorldToScreenPoint(Vector)
     return Vector2.new(Vec3.X, Vec3.Y), OnScreen
 end
 
