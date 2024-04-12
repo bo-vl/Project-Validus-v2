@@ -32,7 +32,6 @@ repeat wait() until plr.Character and plr.Character:FindFirstChild("HumanoidRoot
 local keys = {}
 local Settings = {
     Camlock = false,
-    TriggerBot = false,
     Enabled = false,
     Method = "",
     TeamCheck = false,
@@ -71,6 +70,22 @@ local Settings = {
     HealthBar = false,
 }
 
+local IsPlayerVisible = function(Player)
+    local PlayerCharacter = Player.Character
+    local LocalPlayerCharacter = plr.Character
+    
+    if not (PlayerCharacter or LocalPlayerCharacter) then return end 
+    
+    local PlayerRoot = FindFirstChild(PlayerCharacter, Settings.TargetPart) or FindFirstChild(PlayerCharacter, "HumanoidRootPart")
+    
+    if not PlayerRoot then return end 
+    
+    local CastPoints, IgnoreList = {PlayerRoot.Position, LocalPlayerCharacter, PlayerCharacter}, {LocalPlayerCharacter, PlayerCharacter}
+    local ObscuringObjects = #GetPartsObscuringTarget(Camera, CastPoints, IgnoreList)
+    
+    return ((ObscuringObjects == 0 and true) or (ObscuringObjects > 0 and false))
+end
+
 local GetClosestPlayer = function()
     if not Settings.TargetPart then return end
     local Closest
@@ -81,7 +96,7 @@ local GetClosestPlayer = function()
         local Character = Player.Character
         if not Character then continue end
 
-        if Settings.VisibleCheck and not func.IsPlayerVisible(Player) then continue end
+        if Settings.VisibleCheck and not IsPlayerVisible(Player) then continue end
 
         local HumanoidRootPart = FindFirstChild(Character, "HumanoidRootPart")
         local Humanoid = FindFirstChild(Character, "Humanoid")
@@ -97,16 +112,6 @@ local GetClosestPlayer = function()
         end
     end
     return Closest
-end
-
-local TriggerBot = function()
-    if Settings.TriggerBot then
-        local Closest = GetClosestPlayer()
-        local mousePos = func.GetMousePosition()
-        if Closest then
-            mouse1click(mousePos)
-        end
-    end
 end
 
 local Camlock = function()
@@ -179,19 +184,6 @@ Silent:AddLabel('Silent aim'):AddKeyPicker('Silentaim', {
         Settings.Enabled = Value
     end,
 })
-
-Silent:AddLabel('Triggerbot'):AddKeyPicker('Triggerbot', {
-    Default = '',
-    SyncToggleState = false,
-    Mode = 'Toggle',
-
-    Text = 'Triggerbot',
-    NoUI = false,
-    Callback = function(Value)
-        Settings.TriggerBot = Value
-    end,
-})
-
 
 Silent:AddToggle('TeamCheck', {
     Text = 'Team Check',
@@ -738,7 +730,7 @@ local Fov = function()
         Fov.Color = Settings.FovColor
         Fov.Radius = Settings.FovRadius
         Fov.Transparency = Settings.FovTransparency
-        Fov.Position = Vector2.new(mouse.X, mouse.Y)
+        Fov.Position = Vector2.new(mouse.X, mouse.Y + 36)
     else
         Fov.Visible = false
     end
@@ -750,7 +742,7 @@ local Tracers = function()
         Tracers.Visible = true
         Tracers.Color = Settings.FovTracersColor
         Tracers.Thickness = 1
-        Tracers.From = Vector2.new(mouse.X, mouse.Y )
+        Tracers.From = Vector2.new(mouse.X, mouse.Y + 36)
         if Closest then
             Tracers.To = Vector2.new(Camera:WorldToViewportPoint(Closest.Position).X, Camera:WorldToViewportPoint(Closest.Position).Y)
         else
@@ -801,7 +793,6 @@ RunService.Heartbeat:Connect(function()
     updateHealthBars()
     Walking()
     Autoequipe()
-    TriggerBot()
     Camlock()
     AntiAim()
     GunVisuals()
@@ -843,16 +834,6 @@ MenuGroup:AddToggle('keybindframe', {
     Default = false,
     Tooltip = 'Toggles KeybindFrame',
 })
-
-UserInputService.InputBegan:Connect(function(Input, GameProcessed)
-    if not GameProcessed then
-        if Input.KeyCode == Enum.KeyCode[Options.MenuKeybind.Value] then
-            if Settings.TriggerBot then
-                Settings.TriggerBot = false
-            end
-        end
-    end
-end)
 
 Toggles.keybindframe:OnChanged(function()
     Library.KeybindFrame.Visible = Toggles.keybindframe.Value
