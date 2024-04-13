@@ -35,7 +35,7 @@ functions.GetGun = function(Plr)
     local Character = Plr.Character
     if not Character then return end
     for _,v in ipairs(Character:GetChildren()) do
-        if not functions.IsTool(v) then 
+        if functions.IsTool(v) then 
             return v
         end
     end

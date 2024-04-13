@@ -771,9 +771,9 @@ end)
 
 UserInputService.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 and Settings.BulletTracers then
-        local gun = GetGun(Players.LocalPlayer)
+        local gun = func.GetGun(plr)
         if gun then
-            Tracer(gun.Handle.Position, workspace.CurrentCamera.CFrame.Position + workspace.CurrentCamera.CFrame.LookVector * 1000)
+            BulletTrace(gun.Handle.Position, Camera.CFrame.Position + Camera.CFrame.LookVector * 1000)
         end
     end
 end)
