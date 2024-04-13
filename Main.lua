@@ -38,7 +38,7 @@ local Settings = {
     TargetPart = "Head",
     HitChance = 100, 
     Smoothing = 50,
-    Material = "ForceField",
+    GunMaterial = "ForceField",
     GunVisuals = false,
     Bot = false,
     Botmethod = "Tween",
@@ -62,7 +62,6 @@ local Settings = {
     FovTracersColor = Color3.new(255, 255, 255),
     HealthBar = false,
     BulletTracers = false,
-    BulletTraceColor = Color3.new(255, 0, 0),
     BulletTraceMeterial = "ForceField",
 }
 
@@ -70,8 +69,7 @@ local BulletTrace = function(begin, endpos)
     local tracer = Instance.new("Part")
     tracer.Anchored = true
     tracer.CanCollide = false
-    tracer.Material = Enum.Material[Settings.BulletTraceMaterial]
-    tracer.Color = Settings.BulletTraceColor
+    tracer.Material = Settings.BulletTraceMeterial
     tracer.Size = Vector3.new(0.1, 0.1, (begin - endpos).Magnitude)
     tracer.CFrame = CFrame.new(begin, endpos) * CFrame.new(0, 0, -tracer.Size.Z / 2)
     tracer.Parent = workspace
@@ -338,7 +336,7 @@ GunVisuals:AddDropdown('Material', {
     Tooltip = 'Material',
 
     Callback = function(Value)
-        Settings.Material = Value
+        Settings.GunMaterial = Value
     end
 })
 
@@ -348,16 +346,6 @@ BulletTrace:AddToggle('Bullet Tracers', {
     Tooltip = 'Bullet Tracers',
     Callback = function(Value)
         Settings.BulletTracers = Value
-    end
-})
-
-BulletTrace:AddLabel('Bullet Tracers Color'):AddColorPicker('ColorPicker', {
-    Default = Color3.new(1, 1, 1), 
-    Title = 'Bullet Tracers Color', 
-    Transparency = 0, 
-
-    Callback = function(Value)
-        Settings.BulletTraceColor = Value
     end
 })
 
@@ -741,7 +729,7 @@ local GunVisuals = function()
         if gun then
             for _,v in pairs(gun:GetDescendants()) do
                 if v:IsA("MeshPart") then
-                    v.Material = Settings.Material
+                    v.Material = Settings.GunMaterial
                 end
             end
         end
@@ -757,6 +745,17 @@ local Autoequipe = function()
     end
 end
 
+UserInputService.InputBegan:Connect(function(input)
+    if Settings.BulletTracers then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            local gun = func.GetGun(plr)
+            if gun then
+                BulletTrace(gun.Handle.Position, Camera.CFrame.Position + Camera.CFrame.LookVector * 1000)
+            end
+        end
+    end
+end)
+
 RunService.Heartbeat:Connect(function()
     updateHealthBars()
     Walking()
@@ -768,16 +767,6 @@ RunService.Heartbeat:Connect(function()
     Speed()
     Fly()
 end)
-
-UserInputService.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 and Settings.BulletTracers then
-        local gun = func.GetGun(plr)
-        if gun then
-            BulletTrace(gun.Handle.Position, Camera.CFrame.Position + Camera.CFrame.LookVector * 1000)
-        end
-    end
-end)
-
 
 Library:OnUnload(function()
     Library.Unloaded = true
