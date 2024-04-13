@@ -32,7 +32,7 @@ functions.GetMousePosition = function()
 end
 
 functions.GetGun = function(Plr)
-    local Character = plr.Character
+    local Character = lplr.Character
     if not Character then return end
     for _,v in ipairs(Character:GetChildren()) do
         if functions.IsTool(v) then
