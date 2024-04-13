@@ -29,7 +29,6 @@ local func = loadstring(game:HttpGet("https://raw.githubusercontent.com/Bovanlaa
 
 repeat wait() until plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") and plr.Character:FindFirstChild("Humanoid") and Camera
 
-local keys = {}
 local Settings = {
     Camlock = false,
     Enabled = false,
@@ -38,8 +37,6 @@ local Settings = {
     TargetPart = "Head",
     HitChance = 100, 
     Smoothing = 50,
-    GunMaterial = "ForceField",
-    GunVisuals = false,
     Bot = false,
     Botmethod = "Tween",
     ShowPath = false,
@@ -162,8 +159,7 @@ local Fov = Tabs.Visuals:AddLeftTabbox('Fov')
 local FovSettings = Fov:AddTab('Fov')
 local Colors = Fov:AddTab('Colors')
 local Esp = Tabs.Visuals:AddRightGroupbox('Esp')
-local GunVisuals = Tabs.Visuals:AddRightGroupbox('Gun Visuals')
-local BulletTrace = Tabs.Visuals:AddLeftGroupbox('Bullet Tracers')
+local BulletTrace = Tabs.Visuals:AddRightGroupbox('Bullet Tracers')
 local Bot = Tabs.Misc:AddRightGroupbox('Bot')
 local Movement = Tabs.Misc:AddLeftTabbox('Movement')
 local Fly = Movement:AddTab('Fly')
@@ -317,28 +313,6 @@ FovSettings:AddSlider('Trans', {
     Compact = false,
     Callback = function(Value)
         Settings.FovTransparency = Value
-    end
-})
-
-GunVisuals:AddToggle('Gun Visuals', {
-    Text = 'Enable',
-    Default = false,
-    Tooltip = 'Gun Visuals',
-    Callback = function(Value)
-        Settings.GunVisuals = Value
-    end
-})
-
-GunVisuals:AddDropdown('Material', {
-    Values = { 'ForceField', 'SmoothPlastic', 'Plastic', 'Neon', 'Glass', 'Grass', 'Wood', 'Slate', 'Concrete', 'CorrodedMetal', 'DiamondPlate', 'Foil', 'Granite', 'Marble', 'Brick', 'Pebble', 'Sand', 'Fabric', 'SmoothPlastic', 'Metal', 'Ice', 'ForceField'},
-    Default = 1, 
-    Multi = false,
-
-    Text = 'Gun Material',
-    Tooltip = 'Material',
-
-    Callback = function(Value)
-        Settings.GunMaterial = Value
     end
 })
 
@@ -735,19 +709,6 @@ local Tracers = function()
     end
 end
 
-local GunVisuals = function()
-    if Settings.GunVisuals then
-        local gun = func.Getgun(plr)
-        if gun then
-            for _,v in pairs(gun:GetDescendants()) do
-                if v:IsA("MeshPart") then
-                    v.Material = Settings.GunMaterial
-                end
-            end
-        end
-    end
-end
-
 local Autoequipe = function()
     if Settings.autoequipe then
         local tool = plr.Backpack:GetChildren()[Settings.equipeNumber]
@@ -773,7 +734,6 @@ RunService.Heartbeat:Connect(function()
     Walking()
     Autoequipe()
     Camlock()
-    GunVisuals()
     Fov()
     Tracers()
     Speed()
