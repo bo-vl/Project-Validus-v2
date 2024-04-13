@@ -63,6 +63,7 @@ local Settings = {
     HealthBar = false,
     BulletTracers = false,
     BulletTraceMeterial = "ForceField",
+    BulletTracersColor = Color3.new(255, 0, 0),
 }
 
 local Tracer = function(begin, endpos)
@@ -70,7 +71,7 @@ local Tracer = function(begin, endpos)
     tracer.Anchored = true
     tracer.CanCollide = false
     tracer.Material = Settings.BulletTraceMeterial
-    tracer.Color = Color3.fromRGB(255, 0, 0)
+    tracer.Color = Settings.BulletTracersColor
     tracer.Size = Vector3.new(0.1, 0.1, (begin - endpos).Magnitude)
     tracer.CFrame = CFrame.new(begin, endpos) * CFrame.new(0, 0, -tracer.Size.Z / 2)
     tracer.Parent = workspace
@@ -347,6 +348,16 @@ BulletTrace:AddToggle('Bullet Tracers', {
     Tooltip = 'Bullet Tracers',
     Callback = function(Value)
         Settings.BulletTracers = Value
+    end
+})
+
+BulletTrace:AddLabel('Bullet Color'):AddColorPicker('ColorPicker', {
+    Default = Color3.new(1, 1, 1),
+    Title = 'Bullet Color',
+    Transparency = 0,
+
+    Callback = function(Value)
+        Settings.BulletTracersColor = Value
     end
 })
 
@@ -756,11 +767,10 @@ local GetGun = function(Plr)
     end
 end
 
-
 UserInputService.InputBegan:Connect(function(input)
     if Settings.BulletTracers then
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            local gun = GetGun(plr)
+            local gun = func.GetGun(plr)
             if gun then
                 Tracer(gun.Handle.Position, Camera.CFrame.Position + Camera.CFrame.LookVector * 1000)
             end
