@@ -52,13 +52,6 @@ local Settings = {
     FlyValue = 0,
     SpeedMethod = "CFrame",
     FlyMethod = "CFrame",
-    
-    --Antiaim
-    AntiAim = false,
-    AntiAimType = "CFrame",
-    DesyncX = 0,
-    DesyncY = 0,
-    DesyncZ = 0,
 
     --Visuals
     FovRadius = 100,
@@ -150,7 +143,6 @@ local Tabs = {
 }
 
 local Silent = Tabs.Combat:AddLeftGroupbox('Silent')
-local AntiAim = Tabs.Combat:AddRightGroupbox('Anti Aim')
 local Fov = Tabs.Visuals:AddLeftTabbox('Fov')
 local FovSettings = Fov:AddTab('Fov')
 local Colors = Fov:AddTab('Colors')
@@ -384,64 +376,6 @@ Bot:AddDropdown('bot', {
 
     Callback = function(Value)
         Settings.equipeNumber = Value
-    end
-})
-
-AntiAim:AddToggle('Antiaim', {
-    Text = 'Anti Aim',
-    Default = false,
-    Tooltip = 'Anti aim',
-    Callback = function(Value)
-        Settings.AntiAim = Value
-    end
-})
-
-AntiAim:AddDropdown('Material', {
-    Values = { 'CFrame', 'Velocity'},
-    Default = 1, 
-    Multi = false,
-
-    Text = 'Anti-Aim Type',
-    Tooltip = 'Anti-Aim type',
-
-    Callback = function(Value)
-        Settings.Material = Value
-    end
-})
-
-AntiAim:AddSlider('Antiaim', {
-    Text = 'X',
-    Default = 0,
-    Min = -6000,
-    Max = 6000,
-    Rounding = 1,
-    Compact = false,
-    Callback = function(Value)
-        Settings.DesyncX = Value
-    end
-})
-
-AntiAim:AddSlider('Antiaim', {
-    Text = 'Y',
-    Default = 0,
-    Min = 0,
-    Max = 6000,
-    Rounding = 1,
-    Compact = false,
-    Callback = function(Value)
-        Settings.DesyncY = Value
-    end
-})
-
-AntiAim:AddSlider('Antiaim', {
-    Text = 'Z',
-    Default = 0,
-    Min = 6000,
-    Max = -6000,
-    Rounding = 1,
-    Compact = false,
-    Callback = function(Value)
-        Settings.DesyncZ = Value
     end
 })
 
@@ -766,20 +700,6 @@ local GunVisuals = function()
     end
 end
 
-local AntiAim = function()
-    if Settings.AntiAim then
-        if Settings.AntiAimType == "CFrame" then
-            local oldCf = plr.Character.HumanoidRootPart.CFrame
-            plr.Character.HumanoidRootPart.CFrame = CFrame.new(oldCf.Position) * CFrame.Angles(math.rad(Settings.DesyncX), math.rad(Settings.DesyncY), math.rad(Settings.DesyncZ))
-            plr.Character.HumanoidRootPart.CFrame = oldCf
-        elseif Settings.AntiAimType == "Velocity" then
-            local oldVel = plr.Character.HumanoidRootPart.Velocity
-            plr.Character.HumanoidRootPart.Velocity = Vector3.new(oldVel.X + Settings.DesyncX, oldVel.Y + Settings.DesyncY, oldVel.Z + Settings.DesyncZ)
-            plr.Character.HumanoidRootPart.Velocity = oldVel
-        end
-    end
-end
-
 local Autoequipe = function()
     if Settings.autoequipe then
         local tool = plr.Backpack:GetChildren()[Settings.equipeNumber]
@@ -794,7 +714,6 @@ RunService.Heartbeat:Connect(function()
     Walking()
     Autoequipe()
     Camlock()
-    AntiAim()
     GunVisuals()
     Fov()
     Tracers()
