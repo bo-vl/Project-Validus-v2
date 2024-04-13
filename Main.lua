@@ -65,11 +65,12 @@ local Settings = {
     BulletTraceMeterial = "ForceField",
 }
 
-local BulletTrace = function(begin, endpos)
+local Tracer = function(begin, endpos)
     local tracer = Instance.new("Part")
     tracer.Anchored = true
     tracer.CanCollide = false
     tracer.Material = Settings.BulletTraceMeterial
+    tracer.Color = Color3.fromRGB(255, 0, 0)
     tracer.Size = Vector3.new(0.1, 0.1, (begin - endpos).Magnitude)
     tracer.CFrame = CFrame.new(begin, endpos) * CFrame.new(0, 0, -tracer.Size.Z / 2)
     tracer.Parent = workspace
@@ -745,12 +746,23 @@ local Autoequipe = function()
     end
 end
 
+local GetGun = function(Plr)
+    local Character = Plr.Character
+    if not Character then return end
+    for _,v in ipairs(Character:GetChildren()) do
+        if func.IsTool(v) then
+            return v
+        end
+    end
+end
+
+
 UserInputService.InputBegan:Connect(function(input)
     if Settings.BulletTracers then
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            local gun = func.GetGun(plr)
+            local gun = GetGun(plr)
             if gun then
-                BulletTrace(gun.Handle.Position, Camera.CFrame.Position + Camera.CFrame.LookVector * 1000)
+                Tracer(gun.Handle.Position, Camera.CFrame.Position + Camera.CFrame.LookVector * 1000)
             end
         end
     end
