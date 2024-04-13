@@ -757,16 +757,6 @@ local Autoequipe = function()
     end
 end
 
-local GetGun = function(Plr)
-    local Character = Plr.Character
-    if not Character then return end
-    for _,v in ipairs(Character:GetChildren()) do
-        if func.IsTool(v) then
-            return v
-        end
-    end
-end
-
 UserInputService.InputBegan:Connect(function(input)
     if Settings.BulletTracers then
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
