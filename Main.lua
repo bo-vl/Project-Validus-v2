@@ -61,7 +61,22 @@ local Settings = {
     FovColor = Color3.new(255, 255, 255),
     FovTracersColor = Color3.new(255, 255, 255),
     HealthBar = false,
+    BulletTracers = false,
+    BulletTraceColor = Color3.new(255, 0, 0),
+    BulletTraceMeterial = "ForceField",
 }
+
+local BulletTrace = function(begin, endpos)
+    local tracer = Instance.new("Part")
+    tracer.Anchored = true
+    tracer.CanCollide = false
+    tracer.Material = Enum.Material[Settings.BulletTraceMaterial]
+    tracer.Color = Settings.BulletTraceColor
+    tracer.Size = Vector3.new(0.1, 0.1, (begin - endpos).Magnitude)
+    tracer.CFrame = CFrame.new(begin, endpos) * CFrame.new(0, 0, -tracer.Size.Z / 2)
+    tracer.Parent = workspace
+    game.Debris:AddItem(tracer, 0.1)
+end
 
 local IsPlayerVisible = function(Player)
     local PlayerCharacter = Player.Character
@@ -148,6 +163,7 @@ local FovSettings = Fov:AddTab('Fov')
 local Colors = Fov:AddTab('Colors')
 local Esp = Tabs.Visuals:AddRightGroupbox('Esp')
 local GunVisuals = Tabs.Visuals:AddRightGroupbox('Gun Visuals')
+local BulletTrace = Tabs.Visuals:AddLeftGroupbox('Bullet Tracers')
 local Bot = Tabs.Misc:AddRightGroupbox('Bot')
 local Movement = Tabs.Misc:AddLeftTabbox('Movement')
 local Fly = Movement:AddTab('Fly')
@@ -314,7 +330,7 @@ GunVisuals:AddToggle('Gun Visuals', {
 })
 
 GunVisuals:AddDropdown('Material', {
-    Values = { 'ForceField'},
+    Values = { 'ForceField', 'SmoothPlastic', 'Plastic', 'Neon', 'Glass', 'Grass', 'Wood', 'Slate', 'Concrete', 'CorrodedMetal', 'DiamondPlate', 'Foil', 'Granite', 'Marble', 'Brick', 'Pebble', 'Sand', 'Fabric', 'SmoothPlastic', 'Metal', 'Ice', 'ForceField'},
     Default = 1, 
     Multi = false,
 
@@ -323,6 +339,38 @@ GunVisuals:AddDropdown('Material', {
 
     Callback = function(Value)
         Settings.Material = Value
+    end
+})
+
+BulletTrace:AddToggle('Bullet Tracers', {
+    Text = 'Enable',
+    Default = false,
+    Tooltip = 'Bullet Tracers',
+    Callback = function(Value)
+        Settings.BulletTracers = Value
+    end
+})
+
+BulletTrace:AddLabel('Bullet Tracers Color'):AddColorPicker('ColorPicker', {
+    Default = Color3.new(1, 1, 1), 
+    Title = 'Bullet Tracers Color', 
+    Transparency = 0, 
+
+    Callback = function(Value)
+        Settings.BulletTraceColor = Value
+    end
+})
+
+BulletTrace:AddDropdown('Material', {
+    Values = { 'ForceField', 'SmoothPlastic', 'Plastic', 'Neon', 'Glass', 'Grass', 'Wood', 'Slate', 'Concrete', 'CorrodedMetal', 'DiamondPlate', 'Foil', 'Granite', 'Marble', 'Brick', 'Pebble', 'Sand', 'Fabric', 'SmoothPlastic', 'Metal', 'Ice', 'ForceField'},
+    Default = 1, 
+    Multi = false,
+
+    Text = 'Bullet Tracers Material',
+    Tooltip = 'Material',
+
+    Callback = function(Value)
+        Settings.BulletTraceMeterial = Value
     end
 })
 
@@ -720,6 +768,16 @@ RunService.Heartbeat:Connect(function()
     Speed()
     Fly()
 end)
+
+UserInputService.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 and Settings.BulletTracers then
+        local gun = GetGun(Players.LocalPlayer)
+        if gun then
+            Tracer(gun.Handle.Position, workspace.CurrentCamera.CFrame.Position + workspace.CurrentCamera.CFrame.LookVector * 1000)
+        end
+    end
+end)
+
 
 Library:OnUnload(function()
     Library.Unloaded = true
