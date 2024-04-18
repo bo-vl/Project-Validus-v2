@@ -686,7 +686,7 @@ local Fov = function()
         Fov.Color = Settings.FovColor
         Fov.Radius = Settings.FovRadius
         Fov.Transparency = Settings.FovTransparency
-        Fov.Position = Vector2.new(mouse.X, mouse.Y - 56)
+        Fov.Position = Vector2.new(mouse.X, mouse.Y)
     else
         Fov.Visible = false
     end
